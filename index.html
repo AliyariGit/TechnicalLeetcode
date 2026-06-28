@@ -1,0 +1,2938 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>JavaCode — LeetCode-Style Problem Explorer</title>
+<style>
+/* ── RESET & BASE ─────────────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f1117;--bg2:#1a1d27;--bg3:#252836;--bg4:#2e3248;
+  --border:#3a3f5c;--border2:#4a5070;
+  --text:#e2e8f0;--text2:#94a3b8;--text3:#64748b;
+  --blue:#3b82f6;--blue2:#60a5fa;--blue3:#1d4ed8;
+  --green:#22c55e;--green2:#16a34a;
+  --yellow:#f59e0b;--yellow2:#d97706;
+  --red:#ef4444;--red2:#dc2626;
+  --purple:#a855f7;--cyan:#06b6d4;
+  --accent:#3b82f6;--accent-hover:#2563eb;
+  --tag-bg:#1e3a5f;--tag-text:#60a5fa;
+  --easy:#22c55e;--medium:#f59e0b;--hard:#ef4444;
+  --code-bg:#0d1117;--code-text:#e6edf3;
+  --kw:#ff7b72;--str:#a5d6ff;--num:#79c0ff;
+  --cmt:#8b949e;--type:#ffa657;--ann:#d2a8ff;
+  --fn:#d2a8ff;--cls:#f0883e;
+}
+.light{
+  --bg:#f8fafc;--bg2:#ffffff;--bg3:#f1f5f9;--bg4:#e2e8f0;
+  --border:#e2e8f0;--border2:#cbd5e1;
+  --text:#1e293b;--text2:#475569;--text3:#94a3b8;
+  --tag-bg:#dbeafe;--tag-text:#1d4ed8;
+  --code-bg:#f6f8fa;--code-text:#24292e;
+  --kw:#d73a49;--str:#032f62;--num:#005cc5;
+  --cmt:#6a737d;--type:#e36209;--ann:#6f42c1;
+  --fn:#6f42c1;--cls:#e36209;
+}
+html,body{height:100%;font-family:'Segoe UI',system-ui,sans-serif;font-size:14px;
+          background:var(--bg);color:var(--text);overflow:hidden}
+
+/* ── NAVBAR ──────────────────────────────────────────────────────── */
+.nav{height:52px;background:var(--bg2);border-bottom:1px solid var(--border);
+     display:flex;align-items:center;padding:0 20px;gap:16px;
+     position:sticky;top:0;z-index:100;flex-shrink:0}
+.nav-logo{font-size:20px;font-weight:800;background:linear-gradient(135deg,#3b82f6,#a855f7);
+          -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+          letter-spacing:-0.5px;white-space:nowrap}
+.nav-logo span{font-size:11px;background:none;-webkit-text-fill-color:var(--text3);
+               font-weight:400;letter-spacing:0;margin-left:4px}
+.nav-stats{display:flex;gap:14px;margin-left:auto;font-size:12px;color:var(--text3)}
+.nav-stats b{color:var(--text)}
+.nav-btn{padding:6px 14px;border-radius:6px;border:none;cursor:pointer;
+         font-size:12px;font-weight:600;transition:all .15s}
+.nav-btn.primary{background:var(--blue);color:#fff}
+.nav-btn.primary:hover{background:var(--blue3)}
+.nav-btn.ghost{background:transparent;color:var(--text2);border:1px solid var(--border)}
+.nav-btn.ghost:hover{background:var(--bg3)}
+
+/* ── LAYOUT ──────────────────────────────────────────────────────── */
+.layout{display:flex;height:calc(100vh - 52px);overflow:hidden}
+
+/* ── SIDEBAR ─────────────────────────────────────────────────────── */
+.sidebar{width:400px;flex-shrink:0;background:var(--bg2);
+         border-right:1px solid var(--border);
+         display:flex;flex-direction:column;overflow:hidden}
+.sidebar-top{padding:12px 14px;border-bottom:1px solid var(--border);
+             display:flex;flex-direction:column;gap:8px;flex-shrink:0}
+.search-wrap{position:relative}
+.search-wrap input{width:100%;background:var(--bg3);border:1px solid var(--border);
+                   border-radius:8px;padding:8px 12px 8px 34px;color:var(--text);
+                   font-size:13px;outline:none}
+.search-wrap input:focus{border-color:var(--blue)}
+.search-wrap .ico{position:absolute;left:10px;top:50%;transform:translateY(-50%);
+                  color:var(--text3);pointer-events:none;font-size:14px}
+.filter-row{display:flex;gap:6px}
+.filter-btn{flex:1;padding:5px 8px;border-radius:6px;border:none;cursor:pointer;
+            font-size:11.5px;font-weight:600;background:var(--bg3);
+            color:var(--text2);transition:all .15s}
+.filter-btn:hover{background:var(--bg4)}
+.filter-btn.active{color:#fff}
+.filter-btn.all.active{background:var(--blue)}
+.filter-btn.easy.active{background:var(--green2)}
+.filter-btn.medium.active{background:var(--yellow2)}
+.filter-btn.hard.active{background:var(--red2)}
+
+/* progress bar */
+.progress-wrap{padding:0 2px}
+.progress-label{display:flex;justify-content:space-between;font-size:11px;
+                color:var(--text3);margin-bottom:4px}
+.progress-bar{height:4px;background:var(--bg4);border-radius:2px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--purple));
+               border-radius:2px;transition:width .4s}
+
+/* problem list */
+.prob-list{overflow-y:auto;flex:1}
+.prob-list::-webkit-scrollbar{width:4px}
+.prob-list::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+.prob-row{display:flex;align-items:center;padding:10px 14px;gap:10px;
+          cursor:pointer;border-bottom:1px solid var(--border);
+          transition:background .12s;position:relative}
+.prob-row:hover{background:var(--bg3)}
+.prob-row.active{background:var(--bg4)}
+.prob-row.active::before{content:'';position:absolute;left:0;top:0;bottom:0;
+                         width:3px;background:var(--blue);border-radius:0 2px 2px 0}
+.prob-row.solved .prob-num::after{content:'✓';color:var(--green);
+                                   font-size:9px;margin-left:3px}
+.prob-num{font-size:11.5px;color:var(--text3);width:30px;flex-shrink:0;font-weight:600}
+.prob-title-wrap{flex:1;min-width:0}
+.prob-title-text{font-size:13px;font-weight:500;color:var(--text);
+                 white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prob-tags-row{display:flex;gap:4px;margin-top:3px;flex-wrap:wrap}
+.prob-tag{font-size:10px;padding:1px 6px;border-radius:9px;
+          background:var(--tag-bg);color:var(--tag-text);font-weight:600}
+.prob-meta{display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0}
+.diff-badge{font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:9px}
+.diff-badge.Easy{color:var(--easy);background:#052e16}
+.diff-badge.Medium{color:var(--yellow);background:#422006}
+.diff-badge.Hard{color:var(--red);background:#450a0a}
+.light .diff-badge.Easy{background:#dcfce7}
+.light .diff-badge.Medium{background:#fef9c3}
+.light .diff-badge.Hard{background:#fee2e2}
+.acc-rate{font-size:10px;color:var(--text3)}
+
+/* ── CONTENT ─────────────────────────────────────────────────────── */
+.content{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+
+/* problem header */
+.prob-header{padding:16px 24px 0;flex-shrink:0}
+.prob-header-top{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.prob-header h1{font-size:20px;font-weight:700;color:var(--text)}
+.prob-header .diff-pill{padding:3px 10px;border-radius:12px;font-size:12px;font-weight:700}
+.prob-header .diff-pill.Easy{color:var(--easy);background:#052e1650}
+.prob-header .diff-pill.Medium{color:var(--yellow);background:#42200650}
+.prob-header .diff-pill.Hard{color:var(--red);background:#450a0a50}
+.tag-list{display:flex;gap:6px;flex-wrap:wrap}
+.tag-pill{font-size:11px;padding:3px 10px;border-radius:12px;
+          background:var(--tag-bg);color:var(--tag-text);font-weight:600}
+.complexity-row{display:flex;gap:12px;margin-top:8px}
+.cplx{font-size:11.5px;color:var(--text3)}
+.cplx b{color:var(--cyan);font-family:'Consolas',monospace}
+
+/* tabs */
+.tabs{display:flex;gap:0;padding:0 24px;border-bottom:1px solid var(--border);
+      flex-shrink:0;margin-top:10px}
+.tab-btn{padding:10px 18px;font-size:13px;font-weight:600;color:var(--text3);
+         border:none;background:transparent;cursor:pointer;
+         border-bottom:2px solid transparent;transition:all .15s}
+.tab-btn:hover{color:var(--text)}
+.tab-btn.active{color:var(--blue2);border-bottom-color:var(--blue2)}
+
+/* tab panels */
+.tab-panels{flex:1;overflow:hidden;display:flex;flex-direction:column}
+.tab-panel{display:none;flex:1;overflow-y:auto;padding:20px 24px}
+.tab-panel.active{display:block}
+.tab-panel::-webkit-scrollbar{width:5px}
+.tab-panel::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+/* description */
+.desc-text{font-size:13.5px;line-height:1.7;color:var(--text2)}
+.desc-text p{margin-bottom:12px}
+.ex-block{background:var(--bg3);border:1px solid var(--border);border-radius:8px;
+          padding:12px 16px;margin-bottom:10px;font-size:13px}
+.ex-block .ex-label{font-weight:700;color:var(--text3);margin-bottom:6px;font-size:11.5px}
+.ex-block code{font-family:'Consolas',monospace;color:var(--text)}
+.constraint-list{margin-top:12px}
+.constraint-list li{font-family:'Consolas',monospace;font-size:12.5px;
+                    color:var(--text2);margin-bottom:4px;list-style:disc;
+                    margin-left:18px}
+
+/* approach */
+.approach-card{background:var(--bg2);border:1px solid var(--border);
+               border-radius:10px;padding:16px;margin-bottom:14px}
+.approach-card h3{font-size:13.5px;font-weight:700;color:var(--blue2);margin-bottom:8px;
+                  display:flex;align-items:center;gap:8px}
+.approach-card .icon{width:22px;height:22px;border-radius:50%;background:var(--blue3);
+                     display:flex;align-items:center;justify-content:center;font-size:12px;
+                     flex-shrink:0}
+.approach-card p{font-size:13px;color:var(--text2);line-height:1.65}
+.step-list{counter-reset:step;margin-top:10px}
+.step-list li{counter-increment:step;display:flex;gap:10px;margin-bottom:10px;
+              font-size:13px;color:var(--text2);line-height:1.55;align-items:flex-start}
+.step-list li::before{content:counter(step);width:22px;height:22px;border-radius:50%;
+                      background:var(--blue3);color:#fff;font-size:11px;font-weight:700;
+                      display:flex;align-items:center;justify-content:center;flex-shrink:0;
+                      margin-top:1px}
+
+/* code panel */
+.code-toolbar{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-shrink:0}
+.code-toolbar .lang-badge{background:var(--bg3);border:1px solid var(--border);
+                           border-radius:5px;padding:3px 10px;font-size:11.5px;
+                           font-weight:700;color:var(--yellow)}
+.code-toolbar .spacer{flex:1}
+.copy-btn{padding:5px 12px;border-radius:6px;border:1px solid var(--border);
+          background:var(--bg3);color:var(--text2);font-size:11.5px;font-weight:600;
+          cursor:pointer;transition:all .15s}
+.copy-btn:hover{background:var(--bg4);color:var(--text)}
+.copy-btn.copied{color:var(--green);border-color:var(--green)}
+
+/* code block */
+.code-wrap{background:var(--code-bg);border:1px solid var(--border);
+           border-radius:10px;overflow:hidden;font-size:13px}
+.code-wrap pre{overflow-x:auto;padding:0}
+.code-wrap pre::-webkit-scrollbar{height:5px}
+.code-wrap pre::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+table.code-table{border-collapse:collapse;width:100%;font-family:'Consolas',monospace;
+                  font-size:13px;line-height:1.6}
+table.code-table td{padding:0;vertical-align:top}
+.ln-col{user-select:none;color:var(--text3);padding:14px 14px 14px 18px;
+        text-align:right;min-width:46px;border-right:1px solid var(--border);
+        font-size:12px;background:var(--code-bg)}
+.code-col{padding:14px 20px;white-space:pre;color:var(--code-text);
+          background:var(--code-bg)}
+
+/* java syntax colours */
+.kw{color:var(--kw);font-weight:600}
+.str{color:var(--str)}
+.num{color:var(--num)}
+.cmt{color:var(--cmt);font-style:italic}
+.type{color:var(--type)}
+.ann{color:var(--ann)}
+.fn{color:var(--fn)}
+.cls{color:var(--cls)}
+
+/* empty state */
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;
+             height:100%;gap:16px;color:var(--text3)}
+.empty-state .big{font-size:56px}
+.empty-state h2{font-size:18px;font-weight:600;color:var(--text2)}
+.empty-state p{font-size:13px;text-align:center;max-width:320px;line-height:1.6}
+
+/* solved indicator */
+.solved-icon{color:var(--green);font-size:13px}
+
+/* toast */
+#toast{position:fixed;bottom:24px;right:24px;background:#1e293b;color:#fff;
+       padding:10px 18px;border-radius:8px;font-size:13px;
+       box-shadow:0 8px 24px #0006;opacity:0;transform:translateY(6px);
+       transition:all .2s;pointer-events:none;z-index:999}
+#toast.show{opacity:1;transform:translateY(0)}
+
+
+/* ── MASTERCARD THEME ── */
+:root { --mc-red:#eb001b; --mc-orange:#f79e1b; --mc-gold:#ffb600; }
+.filter-btn.mc.active{background:linear-gradient(135deg,#eb001b,#f79e1b);color:#fff}
+.mc-badge{display:inline-flex;align-items:center;gap:3px;
+          background:linear-gradient(135deg,#eb001b,#f79e1b);
+          color:#fff;font-size:9.5px;padding:1px 7px;
+          border-radius:9px;font-weight:700;letter-spacing:.3px}
+.prob-row.active.has-mc::before{background:linear-gradient(180deg,#eb001b,#f79e1b)}
+.mc-header{display:flex;align-items:center;gap:10px;
+           padding:10px 16px;margin-bottom:14px;border-radius:8px;
+           background:linear-gradient(135deg,#1a0608,#1a0c00);
+           border:1px solid #eb001b40}
+.mc-logo{font-size:22px}
+.mc-header-text h3{font-size:13px;font-weight:700;color:#f79e1b;margin:0}
+.mc-header-text p{font-size:11.5px;color:var(--text2);margin:2px 0 0}
+.mc-section{background:linear-gradient(135deg,#eb001b08,#f79e1b08);
+            border:1px solid #f79e1b30;border-radius:8px;
+            padding:14px;margin-bottom:12px}
+.mc-section h4{font-size:12px;font-weight:700;color:#f79e1b;margin-bottom:8px}
+.mc-freq-badge{display:inline-block;padding:2px 8px;border-radius:9px;
+               font-size:10px;font-weight:700;margin-left:8px}
+.mc-freq-badge.high{background:#052e16;color:#22c55e}
+.mc-freq-badge.very-high{background:#450a0a;color:#f87171}
+
+
+/* ── SCHEMA DIAGRAMS ─────────────────────────────────────────────────────── */
+.schema-wrap{padding:4px 0}
+.schema-block{background:var(--bg2);border:1px solid var(--border);
+              border-radius:10px;margin-bottom:14px;overflow:hidden}
+.schema-block-title{padding:10px 16px;background:var(--bg3);
+                    border-bottom:1px solid var(--border);
+                    font-size:12px;font-weight:700;color:var(--blue2);
+                    display:flex;align-items:center;gap:8px}
+.schema-art{font-family:'Consolas','Courier New',monospace;font-size:12.5px;
+            line-height:1.55;color:var(--code-text);padding:14px 18px;
+            white-space:pre;overflow-x:auto;background:var(--code-bg);
+            border-radius:0 0 10px 10px;margin:0}
+.schema-art::-webkit-scrollbar{height:4px}
+.schema-art::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+.schema-caption{padding:10px 16px;font-size:12px;color:var(--text3);
+                border-top:1px solid var(--border);background:var(--bg2);
+                font-style:italic}
+.schema-legend{display:flex;flex-wrap:wrap;gap:8px;padding:10px 16px;
+               border-top:1px solid var(--border)}
+.schema-legend-item{font-size:11px;padding:2px 8px;border-radius:5px;
+                    background:var(--bg4);color:var(--text2);
+                    font-family:'Consolas',monospace}
+
+/* scrollbar global */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<div class="nav">
+  <div class="nav-logo">JavaCode <span>Interview Prep</span></div>
+  <div class="nav-stats">
+    <span>Solved: <b id="solvedCount">0</b></span>
+    <span>Easy: <b id="easyCount" style="color:var(--easy)">0</b></span>
+    <span>Medium: <b id="medCount" style="color:var(--yellow)">0</b></span>
+    <span>Hard: <b id="hardCount" style="color:var(--red)">0</b></span>
+  </div>
+  <button class="nav-btn ghost" onclick="toggleTheme()">🌙 Theme</button>
+</div>
+
+<!-- LAYOUT -->
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-top">
+      <div class="search-wrap">
+        <span class="ico">🔍</span>
+        <input type="text" id="searchInput" placeholder="Search problems…" oninput="filterProblems()"/>
+      </div>
+      <div class="filter-row">
+        <button class="filter-btn all active" onclick="setFilter('All',this)">All</button>
+        <button class="filter-btn easy" onclick="setFilter('Easy',this)">Easy</button>
+        <button class="filter-btn medium" onclick="setFilter('Medium',this)">Medium</button>
+        <button class="filter-btn hard" onclick="setFilter('Hard',this)">Hard</button>
+        <button class="filter-btn mc" onclick="setFilter('Mastercard',this)">⭐ MC</button>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-label">
+          <span>Progress</span>
+          <span id="progressLabel">0 / 20</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      </div>
+    </div>
+    <div class="prob-list" id="probList"></div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content" id="contentArea">
+    <div class="empty-state">
+      <div class="big">☕</div>
+      <h2>Pick a Problem</h2>
+      <p>Select a problem from the list on the left to view the description, approach, and optimal Java solution.</p>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+
+// ════════════════════════════════════════════════════════════════════════════
+// SCHEMA DIAGRAMS  (keyed by problem id)
+// ════════════════════════════════════════════════════════════════════════════
+const SCHEMAS = {
+
+1: `<div class="schema-wrap">
+<div class="schema-block">
+<div class="schema-block-title">📦 HashMap — Two Sum</div>
+<pre class="schema-art">
+Input:  nums=[2, 7, 11, 15]   target=9
+
+i=0: num=2  complement=9-2=7   map.get(7)?  NO  → map.put(2→0)
+i=1: num=7  complement=9-7=2   map.get(2)?  YES → return [0, 1] ✓
+
+HashMap state at i=1:
+┌─────────┬───────┐
+│  Value  │ Index │
+├─────────┼───────┤
+│    2    │   0   │  ← complement found here
+│    7    │   1   │
+└─────────┴───────┘
+
+Time: O(n) — one pass    Space: O(n) — hash map
+</pre></div></div>`,
+
+2: `<div class="schema-wrap">
+<div class="schema-block">
+<div class="schema-block-title">📚 Stack — Valid Parentheses</div>
+<pre class="schema-art">
+Input: ( { [ ] } )
+
+Char  Action      Stack (left=bottom)
+─────────────────────────────────────
+ (    push        [ ( ]
+ {    push        [ (, { ]
+ [    push        [ (, {, [ ]
+ ]    pop → '['   [ (, { ]    ✓ match
+ }    pop → '{'   [ ( ]       ✓ match
+ )    pop → '('   [ ]         ✓ match
+
+Stack is empty after all chars → VALID ✓
+
+Rule: push open brackets, pop & match on close
+</pre></div></div>`,
+
+3: `<div class="schema-wrap">
+<div class="schema-block">
+<div class="schema-block-title">🔗 Two Pointers — Merge Sorted Lists</div>
+<pre class="schema-art">
+L1: 1 → 3 → 5 → null
+    ↑p1
+L2: 2 → 4 → 6 → null
+    ↑p2
+
+Step  Compare  Take  Result so far
+──────────────────────────────────
+  1   1 &lt; 2     p1    1
+  2   3 &gt; 2     p2    1 → 2
+  3   3 &lt; 4     p1    1 → 2 → 3
+  4   5 &gt; 4     p2    1 → 2 → 3 → 4
+  5   5 &lt; 6     p1    1 → 2 → 3 → 4 → 5
+  6   p1=null        1 → 2 → 3 → 4 → 5 → 6  ✓
+
+Always advance the pointer with the smaller value.
+</pre></div></div>`,
+
+4: `<div class="schema-wrap">
+<div class="schema-block">
+<div class="schema-block-title">📈 Kadane's Algorithm — Maximum Subarray</div>
+<pre class="schema-art">
+Input: [-2, 1, -3, 4, -1, 2, 1, -5, 4]
+
+ i   num   maxHere         maxAll
+─────────────────────────────────────
+ 0   -2    max(-2,   -2)=  -2     -2
+ 1    1    max( 1, -2+1)=   1      1
+ 2   -3    max(-3,  1-3)=  -2      1
+ 3    4    max( 4, -2+4)=   4      4
+ 4   -1    max(-1,  4-1)=   3      4
+ 5    2    max( 2,  3+2)=   5      5
+ 6    1    max( 1,  5+1)=   6      6  ← peak
+ 7   -5    max(-5,  6-5)=   1      6
+ 8    4    max( 4,  1+4)=   5      6
+
+maxHere = max(num, maxHere + num)
+Answer: 6  (subarray: [4, -1, 2, 1])
+</pre></div></div>`,
+
+5: `<div class="schema-wrap">
+<div class="schema-block">
+<div class="schema-block-title">🪜 Dynamic Programming — Climbing Stairs</div>
+<pre class="schema-art">
+n=6 stairs  (Fibonacci-style DP)
+
+Stair:  0   1   2   3   4   5   6
+dp:    [1,  1,  2,  3,  5,  8, 13]
+        ↑   ↑   ↑   ↑   ↑   ↑   ↑
+       base     ↑ computed each step
+
+dp[i] = dp[i-1] + dp[i-2]
+  (1-step from i-1)  +  (2-step from i-2)
+
+Pattern:  1  1  2  3  5  8  13  21  34 ...
+                   Fibonacci!
+
+Answer for n=6: dp[6] = 13
+</pre></div></div>`,
+
+6: `<div class="schema-wrap">
+<div class="schema-block">
+<div class="schema-block-title">🔎 Divide &amp; Conquer — Binary Search</div>
+<pre class="schema-art">
+Array: [1, 3, 5, 7, 9, 11, 13]   target=11
+        0  1  2  3  4   5   6
+
+Round 1:  lo=0  hi=6  mid=3  arr[3]=7
+          7 &lt; 11  →  search RIGHT  lo=4
+
+Round 2:  lo=4  hi=6  mid=5  arr[5]=11
+          11 == 11  →  FOUND at index 5 ✓
+
+Visual split:
+[1, 3, 5, 7 | 9, 11, 13]
+              ↑lo      ↑hi
+              [9, 11, 13]
+                  ↑mid
+                 Found!
+
+Each round halves the search space → O(log n)
+</pre></div></div>`,
+
+7: `<div class="schema-wrap">
+<div class="schema-block">
+<div class="schema-block-title">🔗 Pointer Manipulation — Reverse Linked List</div>
+<pre class="schema-art">
+Before: 1 → 2 → 3 → 4 → 5 → null
+        ↑
+       head
+
+Three pointers: prev=null, curr=head, next=null
+
+Step  prev  curr  next   List state
+──────────────────────────────────────
+ 0    null   1     —     1→2→3→4→5
+ 1      1    2     2     null←1  2→3→4→5
+ 2      2    3     3     null←1←2  3→4→5
+ 3      3    4     4     null←1←2←3  4→5
+ 4      4    5     5     null←1←2←3←4  5
+ 5      5   null   —     null←1←2←3←4←5
+
+After: 5 → 4 → 3 → 2 → 1 → null
+       ↑
+     new head = prev
+</pre></div></div>`,
+
+8: `<div class="schema-wrap">
+<div class="schema-block">
+<div class="schema-block-title">🐢🐇 Floyd's Cycle Detection — Linked List Cycle</div>
+<pre class="schema-art">
+List: 1 → 2 → 3 → 4 → 5
+                   ↑___↗ (cycle: 5→3)
+
+slow (1 step)   fast (2 steps)
+─────────────────────────────────
+Start:  1            1
+Step 1: 2            3
+Step 2: 3            5
+Step 3: 4            4   ← MEET! cycle detected ✓
+
+Key insight: if a cycle exists, fast laps slow inside it.
+If fast reaches null → no cycle.
+
+Meeting point math: distance into cycle
+from entry = distance from head to entry.
+(Used to find cycle start after detection)
+</pre></div></div>`,
+
+9: `<div class="schema-wrap">
+<div class="schema-block">
+<div class="schema-block-title">🌳 Tree Recursion — Invert Binary Tree</div>
+<pre class="schema-art">
+Before:          After:
+      4                4
+    /   \            /   \
+   2     7    →    7     2
+  / \   / \       / \   / \
+ 1   3 6   9     9   6 3   1
+
+At each node: swap(node.left, node.right)
+Then recurse into both children.
+
+Call stack (pre-order):
+  invert(4):  swap(2,7)
+    invert(7):  swap(6,9)  → 9,6
+    invert(2):  swap(1,3)  → 3,1
+
+Any traversal order works (pre/post/level-order).
+Base case: node == null → return
+</pre></div></div>`,
+
+10: `<div class="schema-wrap">
+<div class="schema-block">
+<div class="schema-block-title">🔒 BST Bounds — Validate Binary Search Tree</div>
+<pre class="schema-art">
+Tree:        5
+           /   \
+          3     8
+         / \     \
+        1   4    10
+
+Pass (min, max) bounds down the tree:
+
+  Node   min       max      Valid?
+  ─────────────────────────────────
+   5    -∞        +∞        ✓
+   3    -∞         5        ✓  (3 &lt; 5)
+   1    -∞         3        ✓  (1 &lt; 3)
+   4     3         5        ✓  (3 &lt; 4 &lt; 5)
+   8     5        +∞        ✓  (8 &gt; 5)
+  10     8        +∞        ✓  (10 &gt; 8)
+
+Invalid example:
+   5
+  / \
+ 3   7
+  \
+   6   ← 6 is in right subtree of 3 but 6 &gt; 5 → INVALID
+       (bounds for this node: min=-∞, max=5; 6 &gt; 5 ✗)
+</pre></div></div>`,
+
+11: `<div class="schema-wrap">
+<div class="schema-block">
+<div class="schema-block-title">🌊 BFS Flood Fill — Number of Islands</div>
+<pre class="schema-art">
+Grid (1=land, 0=water):
+  1 1 0 0 0
+  1 1 0 0 0
+  0 0 1 0 0
+  0 0 0 1 1
+
+BFS from unvisited '1' cells, mark visited as '0':
+
+Island #1: Start (0,0) → flood (0,0),(0,1),(1,0),(1,1)
+  . . 0 0 0
+  . . 0 0 0
+  0 0 1 0 0
+  0 0 0 1 1
+
+Island #2: Start (2,2) → flood (2,2)
+  . . 0 0 0
+  . . 0 0 0
+  0 0 . 0 0
+  0 0 0 1 1
+
+Island #3: Start (3,3) → flood (3,3),(3,4)
+  . . 0 0 0
+  . . 0 0 0
+  0 0 . 0 0
+  0 0 0 . .
+
+Result: 3 islands ✓
+Directions: up/down/left/right (4-connected)
+</pre></div></div>`,
+
+12: `<div class="schema-wrap">
+<div class="schema-block">
+<div class="schema-block-title">💰 DP (Bottom-Up) — Coin Change</div>
+<pre class="schema-art">
+coins=[1, 5, 11]   amount=15
+
+dp[i] = min coins to make amount i
+dp[0] = 0  (base)
+dp[i] = ∞  (initially)
+
+Build up:
+amount:  0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15
+dp:      0  1  2  3  4  1  2  3  4  5  2  1  2  3  4  3
+
+Key transitions for amount=15:
+  coin=1:  dp[15] = dp[14]+1 = 5
+  coin=5:  dp[15] = dp[10]+1 = 3  ← better
+  coin=11: dp[15] = dp[4]+1  = 5
+
+Answer: dp[15] = 3  (coins: 5+5+5)
+
+dp[i] = min over all coins c: dp[i-c] + 1  (if i-c &gt;= 0)
+</pre></div></div>`,
+
+13: `<div class="schema-wrap">
+<div class="schema-block">
+<div class="schema-block-title">✖ Prefix × Suffix — Product Except Self</div>
+<pre class="schema-art">
+Input:    [  1,   2,   3,   4  ]
+           idx:  0    1    2    3
+
+Prefix[i] = product of all elements BEFORE i:
+           [  1,   1,   2,   6  ]
+            (1)  (1)  (1×2)(1×2×3)
+
+Suffix[i] = product of all elements AFTER i:
+           [ 24,  12,   4,   1  ]
+           (2×3×4)(3×4)(4)  (1)
+
+Output[i] = Prefix[i] × Suffix[i]:
+           [ 1×24, 1×12, 2×4, 6×1 ]
+         = [  24,   12,    8,   6  ]  ✓
+
+Space-optimized: compute prefix in output array,
+then multiply suffix on second pass (O(1) extra).
+</pre></div></div>`,
+
+14: `<div class="schema-wrap">
+<div class="schema-block">
+<div class="schema-block-title">🔄 Modified Binary Search — Rotated Sorted Array</div>
+<pre class="schema-art">
+Array: [4, 5, 6, 7, 0, 1, 2]   target=0
+        0  1  2  3  4  5  6
+              Rotation pivot here ↑
+
+Round 1: lo=0 hi=6 mid=3  arr[3]=7
+  Is LEFT [4..7] sorted? arr[lo]=4 ≤ arr[mid]=7 → YES
+  Is target 0 in [4,7]?  NO → go RIGHT: lo=4
+
+Round 2: lo=4 hi=6 mid=5  arr[5]=1
+  Is LEFT [0,1] sorted? arr[lo]=0 ≤ arr[mid]=1 → YES
+  Is target 0 in [0,1]?  YES → go LEFT: hi=4
+
+Round 3: lo=4 hi=4 mid=4  arr[4]=0 == target ✓
+
+Key: one half is ALWAYS sorted → use that to decide direction.
+</pre></div></div>`,
+
+15: `<div class="schema-wrap">
+<div class="schema-block">
+<div class="schema-block-title">📖 DP + Dictionary — Word Break</div>
+<pre class="schema-art">
+s = "leetcode"   dict = {"leet", "code"}
+
+dp[i] = can s[0..i-1] be segmented?
+dp[0] = true  (empty string)
+
+i=1: "l"     — not in dict,  no valid j → dp[1]=false
+i=2: "le"    — not in dict,  "l" nope   → dp[2]=false
+i=3: "lee"   — not in dict               → dp[3]=false
+i=4: "leet"  — IN dict! dp[0]=true      → dp[4]=true ✓
+i=5: "leetc" — check "c"(dp[4]✓)? no    → dp[5]=false
+i=6: "leetco"—                            → dp[6]=false
+i=7: "leetcod"—                           → dp[7]=false
+i=8: "leetcode"— check "code"(dp[4]=✓)  → dp[8]=true ✓
+
+dp: [T, F, F, F, T, F, F, F, T]
+Answer: dp[8] = true ✓
+</pre></div></div>`,
+
+16: `<div class="schema-wrap">
+<div class="schema-block">
+<div class="schema-block-title">🔑 HashMap + Doubly Linked List — LRU Cache</div>
+<pre class="schema-art">
+capacity = 2
+
+Operation    HashMap          DLL (MRU→LRU)
+────────────────────────────────────────────
+put(1,1)     {1:node1}        HEAD↔[1]↔TAIL
+put(2,2)     {1,2}            HEAD↔[2]↔[1]↔TAIL
+get(1)       {1,2} (hit)      HEAD↔[1]↔[2]↔TAIL  ← 1 moved to MRU
+put(3,3)     evict LRU=2      HEAD↔[3]↔[1]↔TAIL
+             {1,3}
+get(2)       MISS → return -1
+
+HashMap: O(1) lookup by key
+DLL:     O(1) move-to-front, O(1) evict-last
+
+HEAD↔ [most recent] ↔ ... ↔ [least recent] ↔TAIL
+       ↑ get/put goes here       ↑ evicted when full
+</pre></div></div>`,
+
+17: `<div class="schema-wrap">
+<div class="schema-block">
+<div class="schema-block-title">📐 Kahn's BFS — Course Schedule / Topological Sort</div>
+<pre class="schema-art">
+courses=4  prereqs=[[1,0],[2,1],[3,2]]
+(must take 0 before 1, 1 before 2, 2 before 3)
+
+Dependency Graph:  0 → 1 → 2 → 3
+
+In-degree count:  [0, 1, 1, 1]
+                   0  1  2  3
+
+Queue starts with in-degree=0 nodes: [0]
+
+Step  Process  Neighbors  Updated in-degree   Queue
+──────────────────────────────────────────────────────
+  1      0    → 1        [0, 0, 1, 1]         [1]
+  2      1    → 2        [0, 0, 0, 1]         [2]
+  3      2    → 3        [0, 0, 0, 0]         [3]
+  4      3    (none)     done!                 []
+
+Processed 4 == numCourses → no cycle → VALID ✓
+If processed &lt; numCourses → cycle exists → INVALID
+</pre></div></div>`,
+
+18: `<div class="schema-wrap">
+<div class="schema-block">
+<div class="schema-block-title">⚖️ Two Heaps — Find Median from Data Stream</div>
+<pre class="schema-art">
+Stream: add(1), add(2), add(3), add(4), add(5)
+
+         maxHeap          minHeap       Median
+         (lower half)     (upper half)
+─────────────────────────────────────────────────
+add(1):  [1]              []            1.0
+add(2):  [1]              [2]           (1+2)/2 = 1.5
+add(3):  [1,2]            [3]           2.0
+add(4):  [1,2]            [3,4]         (2+3)/2 = 2.5
+add(5):  [1,2,3]          [4,5]         3.0
+
+Invariant:
+  • maxHeap.size == minHeap.size  OR  maxHeap.size == minHeap.size+1
+  • maxHeap.peek() &lt;= minHeap.peek()  (heaps don't overlap)
+
+Median:
+  if sizes equal  → (maxHeap.peek() + minHeap.peek()) / 2.0
+  if maxHeap larger → maxHeap.peek()
+</pre></div></div>`,
+
+19: `<div class="schema-wrap">
+<div class="schema-block">
+<div class="schema-block-title">🪟 Monotonic Deque — Sliding Window Maximum</div>
+<pre class="schema-art">
+nums=[3, 1, 2, 5, 4, 2]   k=3
+
+Deque stores INDICES, values are decreasing front→back.
+
+ i   num  Deque(idx) Window    Max
+─────────────────────────────────────
+ 0    3     [0]      (init)
+ 1    1     [0,1]    (init)
+ 2    2   → pop 1(2&gt;1) → [0,2]   [3,1,2]  3
+ 3    5   → pop all(5&gt;all) → [3]   [1,2,5]  5
+ 4    4     [3,4]           [2,5,4]  5
+ 5    2     [3,4,5]         [5,4,2]  5
+
+Deque front always = max of current window.
+Pop from back if new element &gt; back (maintain decreasing).
+Pop from front if index is out of window (i-front &gt;= k).
+</pre></div></div>`,
+
+20: `<div class="schema-wrap">
+<div class="schema-block">
+<div class="schema-block-title">📊 2D DP Table — Longest Common Subsequence</div>
+<pre class="schema-art">
+s1="ABCDE"   s2="ACE"
+
+      ""   A   C   E
+  ""  [ 0,  0,  0,  0 ]
+  A   [ 0,  1,  1,  1 ]
+  B   [ 0,  1,  1,  1 ]
+  C   [ 0,  1,  2,  2 ]
+  D   [ 0,  1,  2,  2 ]
+  E   [ 0,  1,  2,  3 ]  ← LCS length = 3
+
+dp[i][j]:
+  if s1[i-1] == s2[j-1]:  dp[i][j] = dp[i-1][j-1] + 1
+  else:                    dp[i][j] = max(dp[i-1][j], dp[i][j-1])
+
+Trace back to find sequence:
+  (5,3)E==E → (4,2) → (3,2)C==C → (2,1) → (1,1)A==A → done
+LCS = "ACE"  ✓
+</pre></div></div>`,
+
+21: `<div class="schema-wrap">
+<div class="schema-block">
+<div class="schema-block-title">💳 Digit Manipulation — Luhn Algorithm</div>
+<pre class="schema-art">
+Card: "4  5  3  9  1  4  8  8  0  3  4  3  6  4  6  7"
+       ↑                                               ↑
+      left                                           right
+
+Step 1: Start from rightmost digit, double every 2nd:
+  pos from right: 1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16
+  multiply by:   ×1 ×2 ×1 ×2 ×1 ×2 ×1 ×2 ×1 ×2 ×1 ×2 ×1 ×2 ×1 ×2
+  result:         7 12  4 12  3  8  3  0  8 16  4  2  9  6  5  8
+
+Step 2: If doubled value ≥ 10, subtract 9:
+         7  3  4  3  3  8  3  0  8  7  4  2  9  6  5  8
+
+Step 3: Sum = 80
+        80 % 10 == 0  →  VALID ✓
+
+Shortcut: double every 2nd from right, sum all, check mod 10.
+</pre></div></div>`,
+
+22: `<div class="schema-wrap">
+<div class="schema-block">
+<div class="schema-block-title">📚 Auxiliary Stack — Min Stack</div>
+<pre class="schema-art">
+Two parallel stacks: mainStack and minStack
+
+Operation    mainStack   minStack   getMin()
+─────────────────────────────────────────────
+push(5)      [5]         [5]          5
+push(3)      [5,3]       [5,3]        3
+push(7)      [5,3,7]     [5,3,3]      3  ← min is still 3
+push(2)      [5,3,7,2]   [5,3,3,2]    2
+getMin()     —            peek=2       2  ✓
+pop()        [5,3,7]      [5,3,3]      3  ✓
+pop()        [5,3]        [5,3]        3
+getMin()     —            peek=3       3  ✓
+
+minStack[i] = minimum of mainStack[0..i]
+Both stacks move in sync on push/pop.
+push: minStack.push(min(newVal, minStack.peek()))
+</pre></div></div>`,
+
+23: `<div class="schema-wrap">
+<div class="schema-block">
+<div class="schema-block-title">🪣 Bucket Sort — Top K Frequent Elements</div>
+<pre class="schema-art">
+nums=[1,1,1,2,2,3]   k=2
+
+Step 1: Frequency map
+  {1:3, 2:2, 3:1}
+
+Step 2: Bucket array (index = frequency)
+  bucket[1] = [3]        (freq=1: element 3)
+  bucket[2] = [2]        (freq=2: element 2)
+  bucket[3] = [1]        (freq=3: element 1)
+
+  idx:  0   1   2   3
+       [ ] [3] [2] [1]
+                        ← size = nums.length+1
+
+Step 3: Read buckets from HIGH to LOW, collect k=2:
+  freq=3 → [1]  (take 1)
+  freq=2 → [2]  (take 2, have k=2 now)
+
+Result: [1, 2]  ✓
+
+Time: O(n)  Space: O(n)  (beats heap's O(n log k))
+</pre></div></div>`,
+
+24: `<div class="schema-wrap">
+<div class="schema-block">
+<div class="schema-block-title">🏆 Min-Heap — Merge K Sorted Lists</div>
+<pre class="schema-art">
+Lists:  L0: 1→4→5
+        L1: 1→3→4
+        L2: 2→6
+
+Min-Heap (val, listIndex, node):
+Initial: {(1,L0,node), (1,L1,node), (2,L2,node)}
+
+Step  Pop      Output  Push next  Heap
+──────────────────────────────────────────
+ 1   (1,L0)    1      (4,L0)  {(1,L1),(2,L2),(4,L0)}
+ 2   (1,L1)    1      (3,L1)  {(2,L2),(3,L1),(4,L0)}
+ 3   (2,L2)    2      (6,L2)  {(3,L1),(4,L0),(6,L2)}
+ 4   (3,L1)    3      (4,L1)  {(4,L0),(4,L1),(6,L2)}
+ 5   (4,L0)    4      (5,L0)  {(4,L1),(5,L0),(6,L2)}
+ 6   (4,L1)    4      null    {(5,L0),(6,L2)}
+ 7   (5,L0)    5      null    {(6,L2)}
+ 8   (6,L2)    6      null    {}
+
+Result: 1→1→2→3→4→4→5→6  ✓
+Time: O(N log k) where N=total nodes, k=num lists
+</pre></div></div>`,
+
+25: `<div class="schema-wrap">
+<div class="schema-block">
+<div class="schema-block-title">📐 Topological Sort — Kahn's BFS</div>
+<pre class="schema-art">
+Tasks with dependencies:
+  build → test → package → deploy
+  build → lint  ↗
+
+Graph (directed edges, prerequisite→next):
+  build(0) → test(1)
+  build(0) → lint(2)
+  test(1)  → package(3)
+  lint(2)  → package(3)
+  package(3)→ deploy(4)
+
+In-degree: [0, 1, 1, 2, 1]
+Queue (in-degree=0): [build]
+
+Process:
+  build  → decrement test,lint  → queue [test,lint]
+  test   → decrement package    → package in-deg=1
+  lint   → decrement package    → queue [package]
+  package→ decrement deploy     → queue [deploy]
+  deploy → done!
+
+Valid order: build→test→lint→package→deploy  ✓
+Cycle detection: if processed &lt; numNodes → cycle!
+</pre></div></div>`,
+
+26: `<div class="schema-wrap">
+<div class="schema-block">
+<div class="schema-block-title">⏱ Greedy + Counting — Task Scheduler</div>
+<pre class="schema-art">
+tasks=[A,A,A,B,B,C]   n=2 (cooldown between same task)
+
+Frequency: A=3, B=2, C=1
+maxFreq=3 (task A), countOfMax=1
+
+Formula: max( (maxFreq-1)*(n+1) + countOfMax, tasks.length )
+       = max( (3-1)*(2+1) + 1, 6 )
+       = max( 7, 6 ) = 7
+
+Slot visualization (n+1=3 slots per cycle):
+Cycle 1: [A, B, C]   3 slots
+Cycle 2: [A, B, _]   3 slots (idle!)
+Cycle 3: [A]         1 slot
+
+Total: 3+3+1 = 7 ✓
+
+Greedy: always schedule the most frequent remaining task.
+Idle slots appear when no valid task available in cooldown.
+</pre></div></div>`,
+
+27: `<div class="schema-wrap">
+<div class="schema-block">
+<div class="schema-block-title">🗓 Min-Heap (End Times) — Meeting Rooms II</div>
+<pre class="schema-art">
+Meetings: [0,30], [5,10], [15,20]
+Sorted by start time: [0,30], [5,10], [15,20]
+
+Min-Heap tracks END TIMES of active meetings:
+
+Meeting   Start  Heap before     Action         Heap after  Rooms
+──────────────────────────────────────────────────────────────────
+[0,30]      0    {}            push end=30      {30}          1
+[5,10]      5    {30}  5&lt;30   overlap→push 10  {10,30}       2
+[15,20]    15    {10,30} 15&gt;10 free room!       {20,30}       2
+                               pop 10, push 20
+
+Max heap size reached = 2 rooms ✓
+
+Rule: if meeting.start &gt;= heap.min (earliest end),
+      that room is free → pop and reuse.
+      Otherwise → need a new room.
+</pre></div></div>`,
+
+28: `<div class="schema-wrap">
+<div class="schema-block">
+<div class="schema-block-title">🎯 QuickSelect — Find Kth Largest Element</div>
+<pre class="schema-art">
+nums=[3,2,1,5,6,4]   k=2  (want 2nd largest)
+
+Target index in sorted order: n-k = 6-2 = 4
+
+QuickSelect (partition around pivot):
+
+Round 1: pivot=4 (last element)
+  Partition: elements &lt; 4 go left, &gt; 4 go right
+  Result: [3,2,1] | 4 | [5,6]
+  pivot lands at index 3. Need index 4 → go RIGHT.
+
+Round 2: subarray=[5,6]  pivot=6
+  Partition: [5] | 6
+  pivot lands at index 5. Need index 4 → go LEFT.
+
+Round 3: subarray=[5]  pivot=5
+  pivot lands at index 4 == target → return 5 ✓
+
+Average O(n), Worst O(n²). For guaranteed O(n log k): use min-heap.
+</pre></div></div>`,
+
+29: `<div class="schema-wrap">
+<div class="schema-block">
+<div class="schema-block-title">🔢 DP — Decode Ways</div>
+<pre class="schema-art">
+s = "2  2  6"   (1=A, 2=B, ..., 26=Z)
+     0  1  2
+
+dp[i] = number of ways to decode s[0..i-1]
+dp[0] = 1  (empty string — 1 way)
+
+i=1: s[0]='2' (valid 1-digit '1'-'9') → dp[1] += dp[0] = 1
+                                          dp[1]=1
+
+i=2: s[1]='2' (valid 1-digit)          → dp[2] += dp[1] = 1
+     s[0..1]="22" (valid 2-digit 10-26) → dp[2] += dp[0] = 1
+                                          dp[2]=2
+
+i=3: s[2]='6' (valid 1-digit)          → dp[3] += dp[2] = 2
+     s[1..2]="26" (valid 2-digit)       → dp[3] += dp[1] = 1
+                                          dp[3]=3
+
+Decodings: "BBF" (2,2,6)  "VF" (22,6)  "BZ" (2,26)
+Answer: dp[3] = 3  ✓
+
+Guard: '0' alone is invalid; "30","00","07" are invalid 2-digit.
+</pre></div></div>`,
+
+30: `<div class="schema-wrap">
+<div class="schema-block">
+<div class="schema-block-title">🪟 Sliding Window + HashSet — Longest Substring Without Repeating</div>
+<pre class="schema-art">
+s = "a b c a b c b b"
+     0 1 2 3 4 5 6 7
+
+left=0, right moves right, HashSet tracks window chars:
+
+right  char  action          window       maxLen
+───────────────────────────────────────────────────
+  0     a    add a          {a}          1
+  1     b    add b          {a,b}        2
+  2     c    add c          {a,b,c}      3
+  3     a    'a' exists!    slide left:
+             remove s[0]='a', left=1    {b,c}
+             add a          {b,c,a}      3
+  4     b    'b' exists!    slide left:
+             remove s[1]='b', left=2    {c,a}
+             add b          {c,a,b}      3
+  5     c    'c' exists → slide → left=3  {a,b}
+             add c          {a,b,c}      3
+  6     b    'b' exists → slide → left=4  {c}
+             add b          {c,b}?  no wait slide more
+             → left=5  {c}, add b  {c,b}  2→3? 3
+
+maxLen = 3  ("abc")  ✓
+</pre></div></div>`,
+
+31: `<div class="schema-wrap">
+<div class="schema-block">
+<div class="schema-block-title">🌲 Trie + DFS — Word Search II</div>
+<pre class="schema-art">
+Board:           Words: ["oath","eat","rain"]
+  o  a  a  n
+  e  t  a  e
+  i  h  k  r
+
+Step 1: Build Trie from word list
+  root
+  ├─ o─a─t─h*  ("oath")
+  ├─ e─a─t*    ("eat")
+  └─ r─a─i─n*  ("rain")
+
+Step 2: DFS from every cell, follow Trie simultaneously
+  Start (0,0)='o' → trie['o'] exists → explore
+    (1,0)='e' → trie['oe'] no match → backtrack
+    (0,1)='a' → trie['oa'] exists → explore
+      (1,1)='t' → trie['oat'] exists → explore
+        (2,1)='h' → trie['oath']* → FOUND "oath"! ✓
+  Start (1,0)='e' → explore → "eat" found! ✓
+  ...
+
+Key: Trie prunes dead paths early; backtrack restores board cell.
+</pre></div></div>`,
+
+32: `<div class="schema-wrap">
+<div class="schema-block">
+<div class="schema-block-title">🦘 Greedy BFS Levels — Jump Game II</div>
+<pre class="schema-art">
+nums = [2, 3, 1, 1, 4]
+        0  1  2  3  4
+
+Each index can jump UP TO nums[i] steps forward.
+Goal: reach index 4 in minimum jumps.
+
+BFS "levels" (each level = one more jump):
+
+Level 0 (start):  reach [0]        maxReach = 0+2 = 2
+Level 1 (jump 1): reach [1,2]      maxReach = max(1+3, 2+1) = 4
+Level 2 (jump 2): reach [3,4]      reached end! → 2 jumps ✓
+
+Greedy visualization:
+   0    1    2    3    4
+  [2]  [3]  [1]  [1]  [4]
+   |    |    |
+   └────┴────┘  1 jump covers indices 1-2
+        |    |    |    |
+        └────┴────┴────┘  2 jumps cover 3-4
+
+Answer: 2 jumps ✓
+</pre></div></div>`,
+
+33: `<div class="schema-wrap">
+<div class="schema-block">
+<div class="schema-block-title">🏠 1D DP — House Robber</div>
+<pre class="schema-art">
+houses = [2, 7, 9, 3, 1]
+          0  1  2  3  4
+
+Cannot rob adjacent houses.
+
+dp[i] = max money robbing houses 0..i
+
+  i=0: dp[0] = 2                     (rob house 0)
+  i=1: dp[1] = max(7, 2)   = 7       (rob house 1 only)
+  i=2: dp[2] = max(9+dp[0], dp[1])
+             = max(11, 7)  = 11      (rob 0+2: 2+9=11)
+  i=3: dp[3] = max(3+dp[1], dp[2])
+             = max(10, 11) = 11      (skip 3, keep 11)
+  i=4: dp[4] = max(1+dp[2], dp[3])
+             = max(12, 11) = 12  ✓  (rob 0+2+4: 2+9+1=12)
+
+dp[i] = max(nums[i] + dp[i-2],  dp[i-1])
+              ↑ rob this           ↑ skip this
+Space-optimized: only need prev2, prev1.
+</pre></div></div>`,
+
+34: `<div class="schema-wrap">
+<div class="schema-block">
+<div class="schema-block-title">🗺 Grid DP — Unique Paths</div>
+<pre class="schema-art">
+m=3 rows, n=4 cols  (robot moves only right or down)
+
+2D DP (ways to reach each cell):
+  ┌────┬────┬────┬────┐
+  │  1 │  1 │  1 │  1 │  ← top row: only one way (right)
+  ├────┼────┼────┼────┤
+  │  1 │  2 │  3 │  4 │  ← dp[i][j] = dp[i-1][j] + dp[i][j-1]
+  ├────┼────┼────┼────┤
+  │  1 │  3 │  6 │ 10 │  ← bottom-right = answer
+  └────┴────┴────┴────┘
+
+Space-optimized (1D rolling array):
+  Initial dp: [1, 1, 1, 1]   (top row)
+  Row 1:      [1, 2, 3, 4]   (dp[j] += dp[j-1])
+  Row 2:      [1, 3, 6, 10]  ← dp[n-1]=10 ✓
+
+dp[j] += dp[j-1] means: paths from above + paths from left.
+Math shortcut: C(m+n-2, m-1) = C(5,2) = 10 ✓
+</pre></div></div>`,
+
+35: `<div class="schema-wrap">
+<div class="schema-block">
+<div class="schema-block-title">🌳 Post-Order DFS — Binary Tree Max Path Sum</div>
+<pre class="schema-art">
+Tree:       -10
+           /    \
+          9      20
+                /  \
+              15    7
+
+Post-order DFS — compute max one-sided gain going UP:
+
+  leaf  9:   gain = 9,   maxPath =  9
+  leaf 15:   gain = 15,  maxPath = 15
+  leaf  7:   gain =  7,  maxPath = 15
+
+  node 20:
+    leftGain  = max(0, gain(15)) = 15
+    rightGain = max(0, gain( 7)) =  7
+    pathThru20 = 20 + 15 + 7 = 42  ← new maxPath = 42 ✓
+    return to parent: 20 + max(15,7) = 35
+
+  node -10:
+    leftGain  = max(0, gain(9))  = 9
+    rightGain = max(0,      35)  = 35
+    pathThru  = -10+9+35 = 34   &lt; 42  (not better)
+
+Answer: maxPath = 42  ✓
+Rule: clamp gains to 0 (ignore negative subtrees).
+</pre></div></div>`,
+
+};
+
+// ════════════════════════════════════════════════════════════════════════════
+// PROBLEM DATA
+// ════════════════════════════════════════════════════════════════════════════
+const PROBLEMS = [
+{
+  id:1, title:"Two Sum", difficulty:"Easy", acceptance:"49.2%",
+  tags:["Array","Hash Table"],
+  time:"O(n)", space:"O(n)",
+  description:`<p>Given an array of integers <code>nums</code> and an integer <code>target</code>, return <em>indices</em> of the two numbers such that they add up to <code>target</code>.</p>
+<p>You may assume that each input would have <strong>exactly one solution</strong>, and you may not use the same element twice.</p>`,
+  examples:[
+    {input:"nums = [2,7,11,15], target = 9",output:"[0,1]",explanation:"nums[0] + nums[1] = 2 + 7 = 9"},
+    {input:"nums = [3,2,4], target = 6",output:"[1,2]",explanation:"nums[1] + nums[2] = 2 + 4 = 6"},
+  ],
+  constraints:["2 ≤ nums.length ≤ 10⁴","-10⁹ ≤ nums[i] ≤ 10⁹","Only one valid answer exists"],
+  approach:`<p>Use a <strong>HashMap</strong> to store each number and its index as we iterate. For every element, check if its complement (<code>target - num</code>) already exists in the map. If yes, we found the pair.</p>`,
+  steps:["Initialise an empty HashMap&lt;Integer, Integer&gt; (value → index).","Iterate through the array with index i.","Compute complement = target - nums[i].","If complement is in the map, return {map.get(complement), i}.","Otherwise, put nums[i] → i into the map and continue."],
+  code:`import java.util.HashMap;
+
+public class TwoSum {
+
+    public int[] twoSum(int[] nums, int target) {
+        // Map stores: number → its index
+        HashMap<Integer, Integer> map = new HashMap<>();
+
+        for (int i = 0; i < nums.length; i++) {
+            int complement = target - nums[i];
+
+            // If complement seen before, we found our pair
+            if (map.containsKey(complement)) {
+                return new int[]{map.get(complement), i};
+            }
+
+            map.put(nums[i], i);
+        }
+        return new int[]{};   // guaranteed to find answer
+    }
+}`
+},
+{
+  id:2, title:"Valid Parentheses", difficulty:"Easy", acceptance:"40.8%",
+  tags:["String","Stack"],
+  time:"O(n)", space:"O(n)",
+  description:`<p>Given a string <code>s</code> containing just the characters <code>'('</code>, <code>')'</code>, <code>'{'</code>, <code>'}'</code>, <code>'['</code> and <code>']'</code>, determine if the input string is valid.</p>
+<p>An input string is valid if: open brackets are closed by the same type, and in the correct order.</p>`,
+  examples:[
+    {input:'s = "()"',output:"true"},
+    {input:'s = "()[]{}"',output:"true"},
+    {input:'s = "(]"',output:"false"},
+  ],
+  constraints:["1 ≤ s.length ≤ 10⁴","s consists of parentheses only '()[]{}'"],
+  approach:`<p>Use a <strong>Stack</strong>. Push opening brackets. When a closing bracket is encountered, check if the top of the stack is the matching opener. If not — or if the stack is empty — return false. At the end, the stack must be empty.</p>`,
+  steps:["Create a Stack&lt;Character&gt;.","For each char c in s:","  If c is an opener ('(', '[', '{') — push it.","  If c is a closer — pop and check if it matches.","Return stack.isEmpty() at the end."],
+  code:`import java.util.Stack;
+
+public class ValidParentheses {
+
+    public boolean isValid(String s) {
+        Stack<Character> stack = new Stack<>();
+
+        for (char c : s.toCharArray()) {
+            // Push opening brackets
+            if (c == '(' || c == '[' || c == '{') {
+                stack.push(c);
+            } else {
+                // Stack must not be empty and top must match
+                if (stack.isEmpty()) return false;
+
+                char top = stack.pop();
+                if (c == ')' && top != '(') return false;
+                if (c == ']' && top != '[') return false;
+                if (c == '}' && top != '{') return false;
+            }
+        }
+        return stack.isEmpty();
+    }
+}`
+},
+{
+  id:3, title:"Maximum Subarray", difficulty:"Easy", acceptance:"50.3%",
+  tags:["Array","Dynamic Programming","Divide and Conquer"],
+  time:"O(n)", space:"O(1)",
+  description:`<p>Given an integer array <code>nums</code>, find the subarray with the largest sum, and return its sum.</p>`,
+  examples:[
+    {input:"nums = [-2,1,-3,4,-1,2,1,-5,4]",output:"6",explanation:"The subarray [4,-1,2,1] has the largest sum 6."},
+    {input:"nums = [1]",output:"1"},
+    {input:"nums = [5,4,-1,7,8]",output:"23"},
+  ],
+  constraints:["1 ≤ nums.length ≤ 10⁵","-10⁴ ≤ nums[i] ≤ 10⁴"],
+  approach:`<p><strong>Kadane's Algorithm</strong>: track the current running sum. If adding the next element improves the sum, extend; otherwise start fresh from that element. Track the global maximum throughout.</p>`,
+  steps:["Initialise currentSum = nums[0], maxSum = nums[0].","From index 1, decide: extend current subarray OR start new one.","currentSum = Math.max(nums[i], currentSum + nums[i]).","maxSum = Math.max(maxSum, currentSum).","Return maxSum."],
+  code:`public class MaximumSubarray {
+
+    public int maxSubArray(int[] nums) {
+        int currentSum = nums[0];
+        int maxSum     = nums[0];
+
+        for (int i = 1; i < nums.length; i++) {
+            // Either extend the current subarray or start fresh
+            currentSum = Math.max(nums[i], currentSum + nums[i]);
+            maxSum     = Math.max(maxSum, currentSum);
+        }
+        return maxSum;
+    }
+}`
+},
+{
+  id:4, title:"Best Time to Buy and Sell Stock", difficulty:"Easy", acceptance:"54.7%",
+  tags:["Array","Dynamic Programming"],
+  time:"O(n)", space:"O(1)",
+  description:`<p>You are given an array <code>prices</code> where <code>prices[i]</code> is the price of a given stock on the <code>i</code>th day.</p>
+<p>You want to maximize your profit by choosing a single day to buy and a single day in the future to sell. Return the maximum profit. If no profit is possible, return <code>0</code>.</p>`,
+  examples:[
+    {input:"prices = [7,1,5,3,6,4]",output:"5",explanation:"Buy on day 2 (price=1) and sell on day 5 (price=6). Profit = 6−1 = 5."},
+    {input:"prices = [7,6,4,3,1]",output:"0",explanation:"No profit possible."},
+  ],
+  constraints:["1 ≤ prices.length ≤ 10⁵","0 ≤ prices[i] ≤ 10⁴"],
+  approach:`<p>One pass: track the <strong>minimum price seen so far</strong>. At each step, compute profit if selling today, and update the global max profit.</p>`,
+  steps:["minPrice = Integer.MAX_VALUE, maxProfit = 0.","For each price p:","  minPrice = Math.min(minPrice, p).","  maxProfit = Math.max(maxProfit, p - minPrice).","Return maxProfit."],
+  code:`public class BestTimeToBuyAndSellStock {
+
+    public int maxProfit(int[] prices) {
+        int minPrice  = Integer.MAX_VALUE;
+        int maxProfit = 0;
+
+        for (int price : prices) {
+            // Track the cheapest buying opportunity so far
+            minPrice  = Math.min(minPrice, price);
+
+            // Best profit if we sell today
+            maxProfit = Math.max(maxProfit, price - minPrice);
+        }
+        return maxProfit;
+    }
+}`
+},
+{
+  id:5, title:"Climbing Stairs", difficulty:"Easy", acceptance:"52.1%",
+  tags:["Math","Dynamic Programming","Memoization"],
+  time:"O(n)", space:"O(1)",
+  description:`<p>You are climbing a staircase. It takes <code>n</code> steps to reach the top. Each time you can climb <code>1</code> or <code>2</code> steps. In how many distinct ways can you climb to the top?</p>`,
+  examples:[
+    {input:"n = 2",output:"2",explanation:"1+1 or 2."},
+    {input:"n = 3",output:"3",explanation:"1+1+1, 1+2, or 2+1."},
+  ],
+  constraints:["1 ≤ n ≤ 45"],
+  approach:`<p>This is the <strong>Fibonacci sequence</strong>. <code>climbStairs(n) = climbStairs(n-1) + climbStairs(n-2)</code>. Use two variables to track previous two values — no array needed.</p>`,
+  steps:["Base cases: n=1→1, n=2→2.","prev2=1 (ways to reach step 1), prev1=2 (ways to reach step 2).","For i from 3 to n: curr = prev1 + prev2.","Slide the window: prev2=prev1, prev1=curr.","Return prev1."],
+  code:`public class ClimbingStairs {
+
+    public int climbStairs(int n) {
+        if (n <= 2) return n;
+
+        int prev2 = 1;   // ways to reach step (i-2)
+        int prev1 = 2;   // ways to reach step (i-1)
+
+        for (int i = 3; i <= n; i++) {
+            int curr = prev1 + prev2;  // Fibonacci recurrence
+            prev2    = prev1;
+            prev1    = curr;
+        }
+        return prev1;
+    }
+}`
+},
+{
+  id:6, title:"Reverse Linked List", difficulty:"Easy", acceptance:"74.6%",
+  tags:["Linked List","Recursion"],
+  time:"O(n)", space:"O(1)",
+  description:`<p>Given the <code>head</code> of a singly linked list, reverse the list, and return the reversed list.</p>`,
+  examples:[
+    {input:"head = [1,2,3,4,5]",output:"[5,4,3,2,1]"},
+    {input:"head = [1,2]",output:"[2,1]"},
+  ],
+  constraints:["0 ≤ The number of nodes ≤ 5000","-5000 ≤ Node.val ≤ 5000"],
+  approach:`<p>Iterative reversal: keep three pointers — <code>prev</code>, <code>curr</code>, <code>next</code>. At each step, reverse the link and advance all pointers.</p>`,
+  steps:["prev = null, curr = head.","While curr != null:","  Save next = curr.next.","  Point curr.next = prev (reverse the link).","  Advance: prev = curr, curr = next.","Return prev (new head)."],
+  code:`public class ReverseLinkedList {
+
+    // ListNode definition
+    static class ListNode {
+        int val;
+        ListNode next;
+        ListNode(int val) { this.val = val; }
+    }
+
+    public ListNode reverseList(ListNode head) {
+        ListNode prev = null;
+        ListNode curr = head;
+
+        while (curr != null) {
+            ListNode next = curr.next;  // save next before overwriting
+            curr.next     = prev;       // reverse the link
+            prev          = curr;       // advance prev
+            curr          = next;       // advance curr
+        }
+        // prev is now the new head
+        return prev;
+    }
+}`
+},
+{
+  id:7, title:"Binary Search", difficulty:"Easy", acceptance:"56.3%",
+  tags:["Array","Binary Search"],
+  time:"O(log n)", space:"O(1)",
+  description:`<p>Given an array of integers <code>nums</code> which is sorted in ascending order, and an integer <code>target</code>, write a function to search <code>target</code> in <code>nums</code>. If <code>target</code> exists then return its index, otherwise return <code>-1</code>.</p>`,
+  examples:[
+    {input:"nums = [-1,0,3,5,9,12], target = 9",output:"4"},
+    {input:"nums = [-1,0,3,5,9,12], target = 2",output:"-1"},
+  ],
+  constraints:["1 ≤ nums.length ≤ 10⁴","All integers in nums are unique","nums is sorted in ascending order"],
+  approach:`<p>Classic <strong>binary search</strong>. Maintain <code>lo</code> and <code>hi</code> pointers. Calculate <code>mid = lo + (hi - lo) / 2</code> (avoids integer overflow). Narrow the search space by half each iteration.</p>`,
+  steps:["lo=0, hi=nums.length-1.","While lo ≤ hi:","  mid = lo + (hi-lo)/2.","  If nums[mid]==target → return mid.","  If nums[mid] < target → lo = mid+1.","  Else → hi = mid-1.","Return -1 (not found)."],
+  code:`public class BinarySearch {
+
+    public int search(int[] nums, int target) {
+        int lo = 0;
+        int hi = nums.length - 1;
+
+        while (lo <= hi) {
+            // Avoid integer overflow vs. (lo + hi) / 2
+            int mid = lo + (hi - lo) / 2;
+
+            if      (nums[mid] == target) return mid;
+            else if (nums[mid] <  target) lo = mid + 1;
+            else                          hi = mid - 1;
+        }
+        return -1;   // target not found
+    }
+}`
+},
+{
+  id:8, title:"Longest Substring Without Repeating Characters", difficulty:"Medium", acceptance:"34.1%",
+  tags:["Hash Table","String","Sliding Window"],
+  time:"O(n)", space:"O(k)",
+  description:`<p>Given a string <code>s</code>, find the length of the <strong>longest substring</strong> without repeating characters.</p>`,
+  examples:[
+    {input:'s = "abcabcbb"',output:"3",explanation:'The answer is "abc", with length 3.'},
+    {input:'s = "bbbbb"',output:"1",explanation:'The answer is "b", with length 1.'},
+    {input:'s = "pwwkew"',output:"3",explanation:'The answer is "wke", with length 3.'},
+  ],
+  constraints:["0 ≤ s.length ≤ 5×10⁴","s consists of English letters, digits, symbols and spaces"],
+  approach:`<p>Use a <strong>Sliding Window</strong> with a HashMap that maps each character to its most recent index. Expand the right pointer; when a duplicate is found, jump the left pointer past the previous occurrence.</p>`,
+  steps:["map = HashMap&lt;Character,Integer&gt;, left=0, maxLen=0.","For right from 0 to n-1:","  If map contains s[right] AND its stored index >= left:","    Move left = map.get(s[right]) + 1.","  Update map with s[right] → right.","  maxLen = Math.max(maxLen, right-left+1).","Return maxLen."],
+  code:`import java.util.HashMap;
+
+public class LongestSubstringWithoutRepeating {
+
+    public int lengthOfLongestSubstring(String s) {
+        HashMap<Character, Integer> map = new HashMap<>();
+        int maxLen = 0;
+        int left   = 0;
+
+        for (int right = 0; right < s.length(); right++) {
+            char c = s.charAt(right);
+
+            // If duplicate found within current window, shrink from left
+            if (map.containsKey(c) && map.get(c) >= left) {
+                left = map.get(c) + 1;
+            }
+
+            map.put(c, right);
+            maxLen = Math.max(maxLen, right - left + 1);
+        }
+        return maxLen;
+    }
+}`
+},
+{
+  id:9, title:"3Sum", difficulty:"Medium", acceptance:"33.0%",
+  tags:["Array","Two Pointers","Sorting"],
+  time:"O(n²)", space:"O(1)",
+  description:`<p>Given an integer array <code>nums</code>, return all the triplets <code>[nums[i], nums[j], nums[k]]</code> such that <code>i != j</code>, <code>i != k</code>, <code>j != k</code>, and <code>nums[i] + nums[j] + nums[k] == 0</code>.</p>
+<p>The solution set must not contain duplicate triplets.</p>`,
+  examples:[
+    {input:"nums = [-1,0,1,2,-1,-4]",output:"[[-1,-1,2],[-1,0,1]]"},
+    {input:"nums = [0,1,1]",output:"[]"},
+    {input:"nums = [0,0,0]",output:"[[0,0,0]]"},
+  ],
+  constraints:["3 ≤ nums.length ≤ 3000","-10⁵ ≤ nums[i] ≤ 10⁵"],
+  approach:`<p>Sort the array. Fix the first element with an outer loop, then use <strong>Two Pointers</strong> (lo, hi) on the remaining subarray to find pairs summing to <code>-nums[i]</code>. Skip duplicates carefully.</p>`,
+  steps:["Sort nums.","For each i from 0 to n-3: skip if nums[i] == nums[i-1].","Set lo=i+1, hi=n-1.","While lo < hi: compute sum = nums[i]+nums[lo]+nums[hi].","  sum==0 → add triplet, advance lo/hi skipping duplicates.","  sum < 0 → lo++.","  sum > 0 → hi--."],
+  code:`import java.util.*;
+
+public class ThreeSum {
+
+    public List<List<Integer>> threeSum(int[] nums) {
+        List<List<Integer>> result = new ArrayList<>();
+        Arrays.sort(nums);  // Sorting enables two-pointer approach
+
+        for (int i = 0; i < nums.length - 2; i++) {
+            // Skip duplicate values for the first element
+            if (i > 0 && nums[i] == nums[i - 1]) continue;
+
+            int lo = i + 1, hi = nums.length - 1;
+
+            while (lo < hi) {
+                int sum = nums[i] + nums[lo] + nums[hi];
+
+                if (sum == 0) {
+                    result.add(Arrays.asList(nums[i], nums[lo], nums[hi]));
+                    // Skip duplicates from both ends
+                    while (lo < hi && nums[lo] == nums[lo + 1]) lo++;
+                    while (lo < hi && nums[hi] == nums[hi - 1]) hi--;
+                    lo++; hi--;
+                } else if (sum < 0) {
+                    lo++;   // need a larger value
+                } else {
+                    hi--;   // need a smaller value
+                }
+            }
+        }
+        return result;
+    }
+}`
+},
+{
+  id:10, title:"Container With Most Water", difficulty:"Medium", acceptance:"54.4%",
+  tags:["Array","Two Pointers","Greedy"],
+  time:"O(n)", space:"O(1)",
+  description:`<p>You are given an integer array <code>height</code> of length <code>n</code>. There are <code>n</code> vertical lines drawn such that the two endpoints of the <code>i</code>th line are <code>(i, 0)</code> and <code>(i, height[i])</code>.</p>
+<p>Find two lines that together with the x-axis form a container that contains the most water. Return the maximum amount of water a container can store.</p>`,
+  examples:[
+    {input:"height = [1,8,6,2,5,4,8,3,7]",output:"49",explanation:"Between index 1 (h=8) and index 8 (h=7): min(8,7)×7 = 49."},
+  ],
+  constraints:["n == height.length","2 ≤ n ≤ 10⁵","0 ≤ height[i] ≤ 10⁴"],
+  approach:`<p>Start with the widest possible container (lo=0, hi=n-1). Move the pointer with the <strong>shorter height</strong> inward — because moving the taller one can only decrease the water. Repeat until pointers meet.</p>`,
+  steps:["lo=0, hi=n-1, maxWater=0.","While lo < hi:","  water = min(height[lo],height[hi]) × (hi-lo).","  maxWater = max(maxWater, water).","  If height[lo] < height[hi] → lo++ (move shorter side).","  Else → hi--.","Return maxWater."],
+  code:`public class ContainerWithMostWater {
+
+    public int maxArea(int[] height) {
+        int lo       = 0;
+        int hi       = height.length - 1;
+        int maxWater = 0;
+
+        while (lo < hi) {
+            int h     = Math.min(height[lo], height[hi]);
+            int water = h * (hi - lo);
+            maxWater  = Math.max(maxWater, water);
+
+            // Always move the shorter bar — moving the taller one
+            // cannot possibly increase the water level
+            if (height[lo] < height[hi]) lo++;
+            else                         hi--;
+        }
+        return maxWater;
+    }
+}`
+},
+{
+  id:11, title:"Product of Array Except Self", difficulty:"Medium", acceptance:"65.5%",
+  tags:["Array","Prefix Sum"],
+  time:"O(n)", space:"O(1)",
+  description:`<p>Given an integer array <code>nums</code>, return an array <code>answer</code> such that <code>answer[i]</code> is equal to the product of all elements of <code>nums</code> except <code>nums[i]</code>.</p>
+<p>The product of any prefix or suffix of <code>nums</code> is <strong>guaranteed</strong> to fit in a 32-bit integer. You must write an algorithm that runs in O(n) time <strong>without using the division operation</strong>.</p>`,
+  examples:[
+    {input:"nums = [1,2,3,4]",output:"[24,12,8,6]"},
+    {input:"nums = [-1,1,0,-3,3]",output:"[0,0,9,0,0]"},
+  ],
+  constraints:["2 ≤ nums.length ≤ 10⁵","-30 ≤ nums[i] ≤ 30"],
+  approach:`<p>Two passes: first fill <code>ans[i]</code> with the <strong>prefix product</strong> (product of all elements to the left). Then multiply each <code>ans[i]</code> by the <strong>suffix product</strong> accumulated from the right.</p>`,
+  steps:["Pass 1 (left→right): ans[0]=1, ans[i] = ans[i-1]*nums[i-1].","Pass 2 (right→left): suffix=1.","  ans[i] *= suffix; suffix *= nums[i].","Each ans[i] now equals leftProduct × rightProduct."],
+  code:`public class ProductExceptSelf {
+
+    public int[] productExceptSelf(int[] nums) {
+        int n   = nums.length;
+        int[] ans = new int[n];
+
+        // Pass 1: ans[i] = product of all elements to the LEFT
+        ans[0] = 1;
+        for (int i = 1; i < n; i++) {
+            ans[i] = ans[i - 1] * nums[i - 1];
+        }
+
+        // Pass 2: multiply by product of all elements to the RIGHT
+        int suffix = 1;
+        for (int i = n - 1; i >= 0; i--) {
+            ans[i]  *= suffix;
+            suffix  *= nums[i];
+        }
+        return ans;
+    }
+}`
+},
+{
+  id:12, title:"Number of Islands", difficulty:"Medium", acceptance:"57.5%",
+  tags:["Array","DFS","BFS","Matrix","Union Find"],
+  time:"O(m×n)", space:"O(m×n)",
+  description:`<p>Given an <code>m x n</code> 2D binary grid <code>grid</code> which represents a map of <code>'1'</code>s (land) and <code>'0'</code>s (water), return the <em>number of islands</em>.</p>
+<p>An island is surrounded by water and is formed by connecting adjacent lands horizontally or vertically.</p>`,
+  examples:[
+    {input:'grid = [["1","1","1","1","0"],["1","1","0","1","0"],["1","1","0","0","0"],["0","0","0","0","0"]]',output:"1"},
+    {input:'grid = [["1","1","0","0","0"],["1","1","0","0","0"],["0","0","1","0","0"],["0","0","0","1","1"]]',output:"3"},
+  ],
+  constraints:["m == grid.length","n == grid[i].length","1 ≤ m,n ≤ 300","grid[i][j] is '0' or '1'"],
+  approach:`<p>Iterate the grid. When a <code>'1'</code> is found, increment the island counter and run <strong>DFS</strong> to mark all connected land cells as <code>'0'</code> (visited), preventing double-counting.</p>`,
+  steps:["For each cell (i,j): if grid[i][j]=='1' → count++ and call dfs(grid,i,j).","dfs: mark grid[i][j]='0', then recurse in 4 directions.","Base case: return if out-of-bounds or cell=='0'.","Return count."],
+  code:`public class NumberOfIslands {
+
+    public int numIslands(char[][] grid) {
+        int count = 0;
+        int m = grid.length, n = grid[0].length;
+
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                if (grid[i][j] == '1') {
+                    count++;
+                    dfs(grid, i, j);   // sink the island
+                }
+            }
+        }
+        return count;
+    }
+
+    private void dfs(char[][] grid, int i, int j) {
+        int m = grid.length, n = grid[0].length;
+
+        // Out of bounds or water — stop
+        if (i < 0 || i >= m || j < 0 || j >= n || grid[i][j] == '0')
+            return;
+
+        grid[i][j] = '0';   // mark as visited
+
+        dfs(grid, i + 1, j);
+        dfs(grid, i - 1, j);
+        dfs(grid, i, j + 1);
+        dfs(grid, i, j - 1);
+    }
+}`
+},
+{
+  id:13, title:"Coin Change", difficulty:"Medium", acceptance:"43.0%",
+  tags:["Array","Dynamic Programming","BFS"],
+  time:"O(amount × n)", space:"O(amount)",
+  description:`<p>You are given an integer array <code>coins</code> representing coins of different denominations and an integer <code>amount</code> representing a total amount of money.</p>
+<p>Return the fewest number of coins needed to make up that amount. If that amount cannot be made up by any combination of the coins, return <code>-1</code>.</p>`,
+  examples:[
+    {input:"coins = [1,5,10,25], amount = 36",output:"3",explanation:"25+10+1 = 3 coins."},
+    {input:"coins = [2], amount = 3",output:"-1"},
+    {input:"coins = [1], amount = 0",output:"0"},
+  ],
+  constraints:["1 ≤ coins.length ≤ 12","1 ≤ coins[i] ≤ 2³¹-1","0 ≤ amount ≤ 10⁴"],
+  approach:`<p><strong>Bottom-up DP</strong>: <code>dp[i]</code> = min coins to reach amount <code>i</code>. For each amount from 1 to target, try every coin: <code>dp[i] = min(dp[i], dp[i-coin]+1)</code>.</p>`,
+  steps:["dp[0..amount] = amount+1 (infinity), dp[0]=0.","For i from 1 to amount:","  For each coin c: if c<=i → dp[i] = min(dp[i], dp[i-c]+1).","Return dp[amount] > amount ? -1 : dp[amount]."],
+  code:`import java.util.Arrays;
+
+public class CoinChange {
+
+    public int coinChange(int[] coins, int amount) {
+        int[] dp = new int[amount + 1];
+        Arrays.fill(dp, amount + 1);   // sentinel "infinity"
+        dp[0] = 0;
+
+        for (int i = 1; i <= amount; i++) {
+            for (int coin : coins) {
+                if (coin <= i) {
+                    // Use this coin: 1 + min coins to reach (i - coin)
+                    dp[i] = Math.min(dp[i], dp[i - coin] + 1);
+                }
+            }
+        }
+        return dp[amount] > amount ? -1 : dp[amount];
+    }
+}`
+},
+{
+  id:14, title:"Merge Intervals", difficulty:"Medium", acceptance:"47.3%",
+  tags:["Array","Sorting"],
+  time:"O(n log n)", space:"O(n)",
+  description:`<p>Given an array of intervals where <code>intervals[i] = [start_i, end_i]</code>, merge all overlapping intervals and return an array of the non-overlapping intervals.</p>`,
+  examples:[
+    {input:"intervals = [[1,3],[2,6],[8,10],[15,18]]",output:"[[1,6],[8,10],[15,18]]",explanation:"[1,3] and [2,6] overlap, merge to [1,6]."},
+    {input:"intervals = [[1,4],[4,5]]",output:"[[1,5]]"},
+  ],
+  constraints:["1 ≤ intervals.length ≤ 10⁴","intervals[i].length == 2","0 ≤ start_i ≤ end_i ≤ 10⁴"],
+  approach:`<p>Sort by start time. Then iterate: if the current interval's start ≤ the end of the last merged interval, extend it. Otherwise, start a new merged interval.</p>`,
+  steps:["Sort intervals by start time.","Add first interval to result.","For each subsequent interval:","  If start ≤ last.end → merge: last.end = max(last.end, curr.end).","  Else → add curr as a new interval.","Return result."],
+  code:`import java.util.*;
+
+public class MergeIntervals {
+
+    public int[][] merge(int[][] intervals) {
+        // Sort by start time
+        Arrays.sort(intervals, (a, b) -> a[0] - b[0]);
+
+        List<int[]> merged = new ArrayList<>();
+        merged.add(intervals[0]);
+
+        for (int i = 1; i < intervals.length; i++) {
+            int[] last = merged.get(merged.size() - 1);
+            int[] curr = intervals[i];
+
+            if (curr[0] <= last[1]) {
+                // Overlapping — extend the end of the last interval
+                last[1] = Math.max(last[1], curr[1]);
+            } else {
+                // Non-overlapping — add as a new interval
+                merged.add(curr);
+            }
+        }
+        return merged.toArray(new int[0][]);
+    }
+}`
+},
+{
+  id:15, title:"LRU Cache", difficulty:"Medium", acceptance:"42.9%",
+  tags:["Hash Table","Linked List","Design"],
+  time:"O(1) get/put", space:"O(capacity)",
+  description:`<p>Design a data structure that follows the constraints of a <strong>Least Recently Used (LRU)</strong> cache.</p>
+<p>Implement the <code>LRUCache</code> class: <code>get(key)</code> returns the value or -1; <code>put(key, value)</code> inserts or updates, evicting the least recently used key when at capacity.</p>`,
+  examples:[
+    {input:'["LRUCache","put","put","get","put","get","put","get","get","get"]\n[[2],[1,1],[2,2],[1],[3,3],[2],[4,4],[1],[3],[4]]',output:"[null,null,null,1,null,-1,null,-1,3,4]"},
+  ],
+  constraints:["1 ≤ capacity ≤ 3000","0 ≤ key ≤ 10⁴","0 ≤ value ≤ 10⁵","At most 2×10⁵ calls to get and put"],
+  approach:`<p>Use Java's <strong>LinkedHashMap</strong> with access-order mode. It automatically moves accessed entries to the tail. Override <code>removeEldestEntry</code> to evict when over capacity.</p>`,
+  steps:["Extend LinkedHashMap with accessOrder=true.","Override removeEldestEntry to evict when size > capacity.","get: return getOrDefault(key, -1).","put: call super.put(key, value)."],
+  code:`import java.util.LinkedHashMap;
+import java.util.Map;
+
+public class LRUCache {
+
+    private final int capacity;
+    // LinkedHashMap in access-order mode: most recently used → tail
+    private final LinkedHashMap<Integer, Integer> cache;
+
+    public LRUCache(int capacity) {
+        this.capacity = capacity;
+        this.cache    = new LinkedHashMap<>(capacity, 0.75f, true) {
+            @Override
+            protected boolean removeEldestEntry(Map.Entry<Integer,Integer> eldest) {
+                return size() > capacity;   // auto-evict LRU entry
+            }
+        };
+    }
+
+    public int get(int key) {
+        // Accessing the key moves it to the "most recently used" tail
+        return cache.getOrDefault(key, -1);
+    }
+
+    public void put(int key, int value) {
+        cache.put(key, value);
+    }
+}`
+},
+{
+  id:16, title:"Search in Rotated Sorted Array", difficulty:"Medium", acceptance:"39.6%",
+  tags:["Array","Binary Search"],
+  time:"O(log n)", space:"O(1)",
+  description:`<p>There is an integer array <code>nums</code> sorted in ascending order (with distinct values). Prior to being passed to your function, <code>nums</code> is possibly rotated at an unknown pivot index.</p>
+<p>Given <code>nums</code> and integer <code>target</code>, return the index of <code>target</code>, or <code>-1</code> if not found.</p>`,
+  examples:[
+    {input:"nums = [4,5,6,7,0,1,2], target = 0",output:"4"},
+    {input:"nums = [4,5,6,7,0,1,2], target = 3",output:"-1"},
+  ],
+  constraints:["1 ≤ nums.length ≤ 5000","All values of nums are unique","nums is an ascending array that is possibly rotated"],
+  approach:`<p>Modified binary search. At every mid, one half is always sorted. Determine which half is sorted, then check if target falls within it — and eliminate the other half.</p>`,
+  steps:["lo=0, hi=n-1.","At each mid: determine which half is sorted.","  Left sorted: nums[lo] ≤ nums[mid].","    If target in [lo..mid] → hi=mid-1, else lo=mid+1.","  Right sorted: nums[mid] ≤ nums[hi].","    If target in [mid..hi] → lo=mid+1, else hi=mid-1.","Return -1 if not found."],
+  code:`public class SearchInRotatedSortedArray {
+
+    public int search(int[] nums, int target) {
+        int lo = 0, hi = nums.length - 1;
+
+        while (lo <= hi) {
+            int mid = lo + (hi - lo) / 2;
+
+            if (nums[mid] == target) return mid;
+
+            // Left half is sorted
+            if (nums[lo] <= nums[mid]) {
+                if (nums[lo] <= target && target < nums[mid]) {
+                    hi = mid - 1;          // target in left half
+                } else {
+                    lo = mid + 1;          // target in right half
+                }
+            }
+            // Right half is sorted
+            else {
+                if (nums[mid] < target && target <= nums[hi]) {
+                    lo = mid + 1;          // target in right half
+                } else {
+                    hi = mid - 1;          // target in left half
+                }
+            }
+        }
+        return -1;
+    }
+}`
+},
+{
+  id:17, title:"Trapping Rain Water", difficulty:"Hard", acceptance:"60.9%",
+  tags:["Array","Two Pointers","Dynamic Programming","Stack"],
+  time:"O(n)", space:"O(1)",
+  description:`<p>Given <code>n</code> non-negative integers representing an elevation map where the width of each bar is <code>1</code>, compute how much water it can trap after raining.</p>`,
+  examples:[
+    {input:"height = [0,1,0,2,1,0,1,3,2,1,2,1]",output:"6"},
+    {input:"height = [4,2,0,3,2,5]",output:"9"},
+  ],
+  constraints:["n == height.length","1 ≤ n ≤ 2×10⁴","0 ≤ height[i] ≤ 10⁵"],
+  approach:`<p>Two pointers from both ends. Track <code>leftMax</code> and <code>rightMax</code>. Water at position i = <code>min(leftMax, rightMax) - height[i]</code>. Always process the side with the smaller max — it determines the water level.</p>`,
+  steps:["lo=0, hi=n-1, leftMax=0, rightMax=0, water=0.","While lo < hi:","  If height[lo] < height[hi]:","    If height[lo]>=leftMax → leftMax=height[lo] else water+=leftMax-height[lo]. lo++.","  Else:","    If height[hi]>=rightMax → rightMax=height[hi] else water+=rightMax-height[hi]. hi--.","Return water."],
+  code:`public class TrappingRainWater {
+
+    public int trap(int[] height) {
+        int lo       = 0, hi = height.length - 1;
+        int leftMax  = 0, rightMax = 0;
+        int water    = 0;
+
+        while (lo < hi) {
+            if (height[lo] < height[hi]) {
+                // Left side is the bottleneck
+                if (height[lo] >= leftMax) {
+                    leftMax = height[lo];   // update max, no water here
+                } else {
+                    water += leftMax - height[lo];   // fill to leftMax
+                }
+                lo++;
+            } else {
+                // Right side is the bottleneck
+                if (height[hi] >= rightMax) {
+                    rightMax = height[hi];
+                } else {
+                    water += rightMax - height[hi];
+                }
+                hi--;
+            }
+        }
+        return water;
+    }
+}`
+},
+{
+  id:18, title:"Word Break", difficulty:"Medium", acceptance:"46.2%",
+  tags:["Hash Table","String","Dynamic Programming","Trie","Memoization"],
+  time:"O(n²)", space:"O(n)",
+  description:`<p>Given a string <code>s</code> and a dictionary of strings <code>wordDict</code>, return <code>true</code> if <code>s</code> can be segmented into a space-separated sequence of one or more dictionary words.</p>`,
+  examples:[
+    {input:'s = "leetcode", wordDict = ["leet","code"]',output:"true"},
+    {input:'s = "applepenapple", wordDict = ["apple","pen"]',output:"true"},
+    {input:'s = "catsandog", wordDict = ["cats","dog","sand","and","cat"]',output:"false"},
+  ],
+  constraints:["1 ≤ s.length ≤ 300","1 ≤ wordDict.length ≤ 1000"],
+  approach:`<p><strong>1D DP</strong>: <code>dp[i]</code> = true if <code>s[0..i-1]</code> can be segmented. For each position i, check all substrings ending at i — if <code>dp[j]</code> is true and <code>s[j..i]</code> is a dictionary word, <code>dp[i]</code> is true.</p>`,
+  steps:["Convert wordDict to HashSet for O(1) lookup.","dp[0]=true (empty string).","For i from 1 to n:","  For j from 0 to i:","    If dp[j] && dict.contains(s.substring(j,i)) → dp[i]=true.","Return dp[n]."],
+  code:`import java.util.*;
+
+public class WordBreak {
+
+    public boolean wordBreak(String s, List<String> wordDict) {
+        Set<String> dict = new HashSet<>(wordDict);
+        int n = s.length();
+        boolean[] dp = new boolean[n + 1];
+        dp[0] = true;   // empty prefix is always valid
+
+        for (int i = 1; i <= n; i++) {
+            for (int j = 0; j < i; j++) {
+                // If prefix [0..j] is valid AND [j..i] is a dictionary word
+                if (dp[j] && dict.contains(s.substring(j, i))) {
+                    dp[i] = true;
+                    break;   // no need to check further splits
+                }
+            }
+        }
+        return dp[n];
+    }
+}`
+},
+{
+  id:19, title:"Find Median from Data Stream", difficulty:"Hard", acceptance:"52.7%",
+  tags:["Two Heaps","Design","Sorting"],
+  time:"O(log n) add, O(1) median", space:"O(n)",
+  description:`<p>The <strong>MedianFinder</strong> class finds the median from a data stream. Implement <code>addNum(int num)</code> which adds an integer from the data stream, and <code>findMedian()</code> which returns the median of all elements so far.</p>`,
+  examples:[
+    {input:'["MedianFinder","addNum","addNum","findMedian","addNum","findMedian"]\n[[],[1],[2],[],[3],[]]',output:"[null,null,null,1.5,null,2.0]"},
+  ],
+  constraints:["-10⁵ ≤ num ≤ 10⁵","At most 5×10⁴ calls to addNum and findMedian","At least one element before calling findMedian"],
+  approach:`<p>Maintain two heaps: a <strong>max-heap</strong> for the lower half and a <strong>min-heap</strong> for the upper half. Keep them balanced (sizes differ by at most 1). Median is always derivable from their tops.</p>`,
+  steps:["maxHeap (lower half), minHeap (upper half).","addNum: add to maxHeap first, then balance.","  Always push maxHeap.top to minHeap.","  If minHeap.size > maxHeap.size → push minHeap.top back.","findMedian: if equal sizes → average tops; else maxHeap.peek()."],
+  code:`import java.util.PriorityQueue;
+import java.util.Collections;
+
+public class MedianFinder {
+
+    // Max-heap: stores the smaller half
+    private PriorityQueue<Integer> maxHeap =
+        new PriorityQueue<>(Collections.reverseOrder());
+
+    // Min-heap: stores the larger half
+    private PriorityQueue<Integer> minHeap =
+        new PriorityQueue<>();
+
+    public void addNum(int num) {
+        maxHeap.offer(num);
+
+        // Ensure every element in maxHeap <= every element in minHeap
+        minHeap.offer(maxHeap.poll());
+
+        // Rebalance: maxHeap can have at most 1 more element
+        if (minHeap.size() > maxHeap.size()) {
+            maxHeap.offer(minHeap.poll());
+        }
+    }
+
+    public double findMedian() {
+        if (maxHeap.size() == minHeap.size()) {
+            // Even count — average the two middle values
+            return (maxHeap.peek() + minHeap.peek()) / 2.0;
+        }
+        // Odd count — maxHeap holds the extra element
+        return maxHeap.peek();
+    }
+}`
+},
+{
+  id:20, title:"Longest Increasing Subsequence", difficulty:"Medium", acceptance:"54.7%",
+  tags:["Array","Binary Search","Dynamic Programming"],
+  time:"O(n log n)", space:"O(n)",
+  description:`<p>Given an integer array <code>nums</code>, return the length of the longest strictly increasing subsequence.</p>`,
+  examples:[
+    {input:"nums = [10,9,2,5,3,7,101,18]",output:"4",explanation:"[2,3,7,101] has length 4."},
+    {input:"nums = [0,1,0,3,2,3]",output:"4"},
+    {input:"nums = [7,7,7,7,7]",output:"1"},
+  ],
+  constraints:["1 ≤ nums.length ≤ 2500","-10⁴ ≤ nums[i] ≤ 10⁴"],
+  approach:`<p><strong>Patience sorting</strong> with binary search. Maintain a <code>tails</code> array where <code>tails[i]</code> is the smallest tail element of all increasing subsequences of length <code>i+1</code>. Binary search for the correct position to place each number.</p>`,
+  steps:["tails = [] (conceptually).","For each num:","  Binary search for leftmost index where tails[i] >= num.","  If no such index → append num (extend longest sub-sequence).","  Else → replace tails[idx] = num (better tail for length idx+1).","Return tails.size()."],
+  code:`import java.util.ArrayList;
+import java.util.List;
+
+public class LongestIncreasingSubsequence {
+
+    public int lengthOfLIS(int[] nums) {
+        List<Integer> tails = new ArrayList<>();
+
+        for (int num : nums) {
+            int pos = binarySearch(tails, num);
+
+            if (pos == tails.size()) {
+                tails.add(num);          // extends the LIS
+            } else {
+                tails.set(pos, num);     // replaces with a smaller tail
+            }
+        }
+        return tails.size();
+    }
+
+    // Find leftmost index where tails[i] >= num
+    private int binarySearch(List<Integer> tails, int num) {
+        int lo = 0, hi = tails.size();
+        while (lo < hi) {
+            int mid = lo + (hi - lo) / 2;
+            if (tails.get(mid) < num) lo = mid + 1;
+            else                       hi = mid;
+        }
+        return lo;
+    }
+}`
+}
+,
+{
+  id:21, title:"Luhn Algorithm — Credit Card Validation", difficulty:"Easy", acceptance:"N/A",
+  tags:["Math","String","Mastercard"], freq:"Very High",
+  time:"O(n)", space:"O(1)",
+  mcNote:"Mastercard and Visa use the Luhn Algorithm to validate card numbers. This is asked directly in Mastercard interviews as a domain-specific problem — knowing it shows product awareness.",
+  description:`<p>Implement the <strong>Luhn Algorithm</strong> to validate a credit card number. Given a string of digits, return <code>true</code> if the number is valid.</p>
+<p><b>Luhn rules:</b></p>
+<ul style="margin-left:18px;margin-top:6px;line-height:1.8;color:var(--text2)">
+<li>Starting from the <strong>rightmost digit</strong>, double every second digit.</li>
+<li>If doubling produces a number > 9, subtract 9.</li>
+<li>Sum all digits. If the total modulo 10 equals 0 — the number is valid.</li>
+</ul>`,
+  examples:[
+    {input:'cardNumber = "4532015112830366"',output:"true",explanation:"Sum of transformed digits = 40, 40 % 10 = 0 → valid."},
+    {input:'cardNumber = "1234567890123456"',output:"false",explanation:"Sum is not divisible by 10."},
+    {input:'cardNumber = "5500 0055 5555 5559"',output:"true",explanation:"Spaces are ignored."},
+  ],
+  constraints:["Card number may contain spaces or dashes","13 ≤ digit count ≤ 19"],
+  approach:`<p>Iterate the card number from <strong>right to left</strong>. Every second digit gets doubled; if the result > 9, subtract 9. Accumulate the sum and check divisibility by 10.</p>`,
+  steps:["Strip all spaces and dashes.","Traverse from right to left, tracking an 'alternate' flag.","When alternate=true: digit *= 2; if digit > 9, digit -= 9.","Add digit to sum, toggle alternate.","Return sum % 10 == 0."],
+  code:`public class LuhnAlgorithm {
+
+    public boolean isValidCard(String cardNumber) {
+        // Strip spaces and dashes
+        cardNumber = cardNumber.replaceAll("[\\\\s\\\\-]", "");
+
+        int     sum       = 0;
+        boolean alternate = false;   // starts false for the rightmost digit
+
+        for (int i = cardNumber.length() - 1; i >= 0; i--) {
+            int digit = cardNumber.charAt(i) - '0';
+
+            if (alternate) {
+                digit *= 2;
+                if (digit > 9) digit -= 9;   // same as summing the two digits
+            }
+
+            sum += digit;
+            alternate = !alternate;
+        }
+        return sum % 10 == 0;
+    }
+
+    // Generate a valid card number check digit (common follow-up)
+    public int getCheckDigit(String partialNumber) {
+        // Append a 0, run Luhn, return the digit that makes sum % 10 == 0
+        String withZero = partialNumber + "0";
+        int sum = 0;
+        boolean alternate = false;
+        for (int i = withZero.length() - 1; i >= 0; i--) {
+            int d = withZero.charAt(i) - '0';
+            if (alternate) { d *= 2; if (d > 9) d -= 9; }
+            sum += d;
+            alternate = !alternate;
+        }
+        return (10 - (sum % 10)) % 10;
+    }
+}`
+},
+{
+  id:22, title:"Min Stack", difficulty:"Easy", acceptance:"53.1%",
+  tags:["Stack","Design","Mastercard"], freq:"Very High",
+  time:"O(1) all ops", space:"O(n)",
+  mcNote:"Constantly asked in Mastercard phone screens. Tests your understanding of auxiliary data structures and O(1) constraint satisfaction.",
+  description:`<p>Design a stack that supports <code>push</code>, <code>pop</code>, <code>top</code>, and retrieving the <strong>minimum element in constant time</strong>.</p>
+<p>Implement the <code>MinStack</code> class with: <code>push(val)</code>, <code>pop()</code>, <code>top()</code>, <code>getMin()</code> — all in <strong>O(1)</strong> time.</p>`,
+  examples:[
+    {input:'["MinStack","push","push","push","getMin","pop","top","getMin"]\n[[],[-2],[0],[-3],[],[],[],[]]',output:"[null,null,null,null,-3,null,0,-2]"},
+  ],
+  constraints:["-2³¹ ≤ val ≤ 2³¹-1","pop/top/getMin called on non-empty stack","At most 3×10⁴ calls total"],
+  approach:`<p>Maintain a <strong>secondary min-stack</strong> that tracks the minimum at each point in history. When we push a value ≤ current min, push it onto the min-stack too. When we pop the main stack, if the popped value equals the top of min-stack, pop the min-stack as well.</p>`,
+  steps:["Two stacks: stack (main) and minStack.","push(val): always push to stack. Push to minStack only if val <= minStack.peek().","pop(): pop from stack. If popped value == minStack.peek(), pop minStack too.","getMin(): return minStack.peek() — always O(1)."],
+  code:`import java.util.Stack;
+
+public class MinStack {
+
+    private Stack<Integer> stack;
+    private Stack<Integer> minStack;  // tracks minimum at each depth
+
+    public MinStack() {
+        stack    = new Stack<>();
+        minStack = new Stack<>();
+    }
+
+    public void push(int val) {
+        stack.push(val);
+        // Push to minStack if it's the new minimum
+        if (minStack.isEmpty() || val <= minStack.peek()) {
+            minStack.push(val);
+        }
+    }
+
+    public void pop() {
+        int removed = stack.pop();
+        // If we removed the current minimum, update minStack
+        if (removed == minStack.peek()) {
+            minStack.pop();
+        }
+    }
+
+    public int top() {
+        return stack.peek();
+    }
+
+    public int getMin() {
+        return minStack.peek();   // always O(1)
+    }
+}`
+},
+{
+  id:23, title:"Top K Frequent Elements", difficulty:"Medium", acceptance:"65.3%",
+  tags:["Array","Hash Table","Heap","Bucket Sort","Mastercard"], freq:"Very High",
+  time:"O(n)", space:"O(n)",
+  mcNote:"Comes up in Mastercard interviews to test knowledge of frequency counting, heap usage, and the ability to find O(n) bucket-sort optimisation over the naive O(n log n) heap approach.",
+  description:`<p>Given an integer array <code>nums</code> and an integer <code>k</code>, return the <code>k</code> most frequent elements. You may return the answer in <strong>any order</strong>.</p>`,
+  examples:[
+    {input:"nums = [1,1,1,2,2,3], k = 2",output:"[1,2]"},
+    {input:"nums = [1], k = 1",output:"[1]"},
+  ],
+  constraints:["1 ≤ nums.length ≤ 10⁵","-10⁴ ≤ nums[i] ≤ 10⁴","k is in range [1, unique elements count]","Answer is guaranteed to be unique"],
+  approach:`<p><strong>Bucket Sort O(n)</strong>: count frequencies with a HashMap, then place each number into a bucket indexed by its frequency. Scan buckets from highest frequency down to collect k elements.</p>`,
+  steps:["Build freq map: num → count.","Create buckets array of size n+1 (index = frequency).","For each num, add to buckets[freq[num]].","Scan buckets from high to low, collect until k elements found."],
+  code:`import java.util.*;
+
+public class TopKFrequentElements {
+
+    public int[] topKFrequent(int[] nums, int k) {
+        // Step 1: count frequencies
+        Map<Integer, Integer> freq = new HashMap<>();
+        for (int n : nums) freq.merge(n, 1, Integer::sum);
+
+        // Step 2: bucket by frequency (index = frequency count)
+        @SuppressWarnings("unchecked")
+        List<Integer>[] buckets = new List[nums.length + 1];
+        for (int num : freq.keySet()) {
+            int f = freq.get(num);
+            if (buckets[f] == null) buckets[f] = new ArrayList<>();
+            buckets[f].add(num);
+        }
+
+        // Step 3: collect top k from highest-frequency buckets
+        int[] result = new int[k];
+        int   idx    = 0;
+        for (int i = buckets.length - 1; i >= 0 && idx < k; i--) {
+            if (buckets[i] != null) {
+                for (int num : buckets[i]) {
+                    if (idx < k) result[idx++] = num;
+                }
+            }
+        }
+        return result;
+    }
+}`
+},
+{
+  id:24, title:"Merge K Sorted Lists", difficulty:"Hard", acceptance:"51.9%",
+  tags:["Linked List","Divide and Conquer","Heap","Merge Sort","Mastercard"], freq:"High",
+  time:"O(n log k)", space:"O(k)",
+  mcNote:"Tests knowledge of priority queues and efficient merging — directly relevant to Mastercard's transaction aggregation and batch processing pipelines where multiple sorted streams are merged.",
+  description:`<p>You are given an array of <code>k</code> linked-lists <code>lists</code>, each linked-list is sorted in ascending order. Merge all the linked-lists into one sorted linked-list and return it.</p>`,
+  examples:[
+    {input:"lists = [[1,4,5],[1,3,4],[2,6]]",output:"[1,1,2,3,4,4,5,6]"},
+    {input:"lists = []",output:"[]"},
+  ],
+  constraints:["k == lists.length","0 ≤ k ≤ 10⁴","0 ≤ lists[i].length ≤ 500","-10⁴ ≤ lists[i][j] ≤ 10⁴"],
+  approach:`<p>Use a <strong>Min-Heap (PriorityQueue)</strong> seeded with the head of each list. Always extract the smallest node, append to result, and push that node's <code>next</code> back into the heap.</p>`,
+  steps:["Add all non-null list heads to a min-heap ordered by val.","While heap not empty: poll the minimum node, append to result.","If polled node has a next, push next into the heap.","Return dummy.next."],
+  code:`import java.util.PriorityQueue;
+
+public class MergeKSortedLists {
+
+    static class ListNode {
+        int val; ListNode next;
+        ListNode(int val) { this.val = val; }
+    }
+
+    public ListNode mergeKLists(ListNode[] lists) {
+        // Min-heap: smallest node value at the top
+        PriorityQueue<ListNode> heap =
+            new PriorityQueue<>((a, b) -> a.val - b.val);
+
+        // Seed the heap with each list's head
+        for (ListNode head : lists) {
+            if (head != null) heap.offer(head);
+        }
+
+        ListNode dummy = new ListNode(0);
+        ListNode curr  = dummy;
+
+        while (!heap.isEmpty()) {
+            ListNode node = heap.poll();   // smallest available node
+            curr.next     = node;
+            curr          = curr.next;
+
+            if (node.next != null) {
+                heap.offer(node.next);    // push the next from that list
+            }
+        }
+        return dummy.next;
+    }
+}`
+},
+{
+  id:25, title:"Course Schedule II", difficulty:"Medium", acceptance:"48.9%",
+  tags:["DFS","BFS","Topological Sort","Graph","Mastercard"], freq:"High",
+  time:"O(V + E)", space:"O(V + E)",
+  mcNote:"Topological sort models dependency ordering — Mastercard's payment orchestration systems (authorization → clearing → settlement) have strict ordering requirements. Expect this or the variant.",
+  description:`<p>There are <code>numCourses</code> courses (0 to numCourses-1). You are given an array <code>prerequisites</code> where <code>[a, b]</code> means you must take course <code>b</code> before course <code>a</code>.</p>
+<p>Return the ordering of courses you should take to finish all courses. If impossible (cycle exists), return an empty array.</p>`,
+  examples:[
+    {input:"numCourses = 2, prerequisites = [[1,0]]",output:"[0,1]"},
+    {input:"numCourses = 4, prerequisites = [[1,0],[2,0],[3,1],[3,2]]",output:"[0,2,1,3]"},
+    {input:"numCourses = 1, prerequisites = []",output:"[0]"},
+  ],
+  constraints:["1 ≤ numCourses ≤ 2000","0 ≤ prerequisites.length ≤ numCourses×(numCourses-1)"],
+  approach:`<p><strong>Kahn's Algorithm (BFS Topological Sort)</strong>: compute in-degree for each node. Enqueue all nodes with in-degree 0. Process: add to result, reduce neighbours' in-degrees, enqueue any that reach 0. Cycle detected if result size < numCourses.</p>`,
+  steps:["Build adjacency list and in-degree array.","Queue all nodes with inDegree[i]==0.","BFS: poll node, add to order[], decrement neighbour in-degrees.","If neighbour's in-degree becomes 0, enqueue it.","Return order[] if all nodes processed, else [] (cycle detected)."],
+  code:`import java.util.*;
+
+public class CourseScheduleII {
+
+    public int[] findOrder(int numCourses, int[][] prerequisites) {
+        List<List<Integer>> adj    = new ArrayList<>();
+        int[]               inDeg  = new int[numCourses];
+
+        for (int i = 0; i < numCourses; i++) adj.add(new ArrayList<>());
+
+        for (int[] pre : prerequisites) {
+            adj.get(pre[1]).add(pre[0]);
+            inDeg[pre[0]]++;
+        }
+
+        // Kahn's BFS: start with all zero-in-degree nodes
+        Queue<Integer> queue = new LinkedList<>();
+        for (int i = 0; i < numCourses; i++) {
+            if (inDeg[i] == 0) queue.offer(i);
+        }
+
+        int[] order = new int[numCourses];
+        int   idx   = 0;
+
+        while (!queue.isEmpty()) {
+            int course = queue.poll();
+            order[idx++] = course;
+
+            for (int next : adj.get(course)) {
+                if (--inDeg[next] == 0) queue.offer(next);
+            }
+        }
+
+        // If we processed all courses — no cycle
+        return idx == numCourses ? order : new int[]{};
+    }
+}`
+},
+{
+  id:26, title:"Task Scheduler", difficulty:"Medium", acceptance:"58.3%",
+  tags:["Array","Greedy","Heap","Counting","Mastercard"], freq:"High",
+  time:"O(n)", space:"O(1)",
+  mcNote:"Task scheduling with cooldown constraints is directly analogous to Mastercard's payment retry logic (a declined transaction cannot be retried immediately). Very common in system design follow-ups too.",
+  description:`<p>Given a characters array <code>tasks</code> representing CPU tasks where each letter is a different task type, and a cooldown integer <code>n</code>, return the minimum number of intervals the CPU needs to finish all tasks.</p>
+<p>Tasks of the same type must be separated by at least <code>n</code> intervals.</p>`,
+  examples:[
+    {input:'tasks = ["A","A","A","B","B","B"], n = 2',output:"8",explanation:"A→B→idle→A→B→idle→A→B"},
+    {input:'tasks = ["A","A","A","A","A","A","B","C","D","E","F","G"], n = 2',output:"16"},
+  ],
+  constraints:["1 ≤ tasks.length ≤ 10⁴","tasks[i] is uppercase English letter","0 ≤ n ≤ 100"],
+  approach:`<p>The bottleneck is the most frequent task. If its count is <code>maxFreq</code>, we need at least <code>(maxFreq-1) × (n+1) + maxFreqTasks</code> slots (where <code>maxFreqTasks</code> = count of tasks with frequency == maxFreq). Return max of this formula and tasks.length.</p>`,
+  steps:["Count frequency of each task.","Find maxFreq = highest frequency.","Count how many tasks share maxFreq.","Formula: (maxFreq-1)*(n+1) + maxFreqTasks.","Return Math.max(formula, tasks.length)."],
+  code:`public class TaskScheduler {
+
+    public int leastInterval(char[] tasks, int n) {
+        int[] freq = new int[26];
+        for (char t : tasks) freq[t - 'A']++;
+
+        // Find the maximum frequency
+        int maxFreq = 0;
+        for (int f : freq) maxFreq = Math.max(maxFreq, f);
+
+        // Count how many tasks share the maximum frequency
+        int maxFreqTasks = 0;
+        for (int f : freq) {
+            if (f == maxFreq) maxFreqTasks++;
+        }
+
+        // Minimum slots needed:
+        // (maxFreq - 1) full "frames" of (n+1) slots
+        // + the final row with maxFreqTasks tasks
+        int minSlots = (maxFreq - 1) * (n + 1) + maxFreqTasks;
+
+        // We can always just execute tasks back-to-back if enough variety
+        return Math.max(minSlots, tasks.length);
+    }
+}`
+},
+{
+  id:27, title:"Meeting Rooms II", difficulty:"Medium", acceptance:"50.2%",
+  tags:["Array","Sorting","Heap","Greedy","Mastercard"], freq:"Very High",
+  time:"O(n log n)", space:"O(n)",
+  mcNote:"Resource allocation under time constraints directly models Mastercard's authorization servers — how many concurrent sessions/connections do we need? One of the most frequently reported Mastercard interview questions.",
+  description:`<p>Given an array of meeting time intervals <code>intervals</code> where <code>intervals[i] = [start_i, end_i]</code>, return the <strong>minimum number of conference rooms required</strong>.</p>`,
+  examples:[
+    {input:"intervals = [[0,30],[5,10],[15,20]]",output:"2"},
+    {input:"intervals = [[7,10],[2,4]]",output:"1"},
+  ],
+  constraints:["1 ≤ intervals.length ≤ 10⁴","0 ≤ start_i < end_i ≤ 10⁶"],
+  approach:`<p>Sort by start time. Use a <strong>min-heap</strong> storing end times of ongoing meetings. For each new meeting: if its start ≥ heap top (a room is free), pop it. Always push the new meeting's end time. The heap size = rooms in use = answer.</p>`,
+  steps:["Sort intervals by start time.","Min-heap of end times (currently occupied rooms).","For each meeting: if heap.peek() <= meeting.start → poll() (reuse the room).","Push meeting.end into heap.","Return heap.size() — rooms still occupied at the end."],
+  code:`import java.util.*;
+
+public class MeetingRoomsII {
+
+    public int minMeetingRooms(int[][] intervals) {
+        if (intervals.length == 0) return 0;
+
+        // Sort meetings by start time
+        Arrays.sort(intervals, (a, b) -> a[0] - b[0]);
+
+        // Min-heap tracks the earliest ending ongoing meeting
+        PriorityQueue<Integer> endTimes = new PriorityQueue<>();
+
+        for (int[] meeting : intervals) {
+            int start = meeting[0], end = meeting[1];
+
+            // If the earliest-ending meeting is done, free that room
+            if (!endTimes.isEmpty() && endTimes.peek() <= start) {
+                endTimes.poll();
+            }
+
+            // Assign a room (or keep the same one) for this meeting
+            endTimes.offer(end);
+        }
+
+        // Rooms still occupied = total rooms needed
+        return endTimes.size();
+    }
+}`
+},
+{
+  id:28, title:"Kth Largest Element in an Array", difficulty:"Medium", acceptance:"66.4%",
+  tags:["Array","Divide and Conquer","QuickSelect","Heap","Mastercard"], freq:"Very High",
+  time:"O(n) avg QuickSelect", space:"O(1)",
+  mcNote:"Directly used in real-time fraud scoring: 'Is this transaction in the top-k by risk score?' Mastercard asks this in almost every coding round — know both the heap and QuickSelect approaches.",
+  description:`<p>Given an integer array <code>nums</code> and an integer <code>k</code>, return the <code>k</code>th largest element in the array. Note that it is the kth largest in sorted order, not the kth distinct element.</p>`,
+  examples:[
+    {input:"nums = [3,2,1,5,6,4], k = 2",output:"5"},
+    {input:"nums = [3,2,3,1,2,4,5,5,6], k = 4",output:"4"},
+  ],
+  constraints:["1 ≤ k ≤ nums.length ≤ 10⁵","-10⁴ ≤ nums[i] ≤ 10⁴"],
+  approach:`<p><strong>QuickSelect</strong> (avg O(n)): partition the array around a pivot. If the pivot lands at position k-1 from the right — we found it. Otherwise recurse into the correct half only.</p>`,
+  steps:["QuickSelect: choose a pivot (last element).","Partition: move all elements > pivot to the left.","If pivot index == k-1 → return pivot.","If k-1 < pivot index → recurse left.","Else → recurse right with adjusted k."],
+  code:`import java.util.Random;
+
+public class KthLargestElement {
+
+    private Random rand = new Random();
+
+    public int findKthLargest(int[] nums, int k) {
+        return quickSelect(nums, 0, nums.length - 1, k - 1);
+    }
+
+    // Find element at index k when sorted descending
+    private int quickSelect(int[] nums, int lo, int hi, int k) {
+        if (lo == hi) return nums[lo];
+
+        // Random pivot to avoid worst-case O(n²)
+        int pivotIdx = lo + rand.nextInt(hi - lo + 1);
+        swap(nums, pivotIdx, hi);
+
+        int pivot = nums[hi], p = lo;
+        for (int i = lo; i < hi; i++) {
+            if (nums[i] >= pivot) swap(nums, i, p++); // descending order
+        }
+        swap(nums, p, hi);
+
+        if      (p == k) return nums[p];
+        else if (p >  k) return quickSelect(nums, lo, p - 1, k);
+        else             return quickSelect(nums, p + 1, hi, k);
+    }
+
+    private void swap(int[] nums, int i, int j) {
+        int tmp = nums[i]; nums[i] = nums[j]; nums[j] = tmp;
+    }
+}`
+},
+{
+  id:29, title:"Decode Ways", difficulty:"Medium", acceptance:"34.7%",
+  tags:["String","Dynamic Programming","Mastercard"], freq:"High",
+  time:"O(n)", space:"O(1)",
+  mcNote:"Encoding and decoding data is fundamental to Mastercard's EMV chip and tokenisation pipeline. Decode Ways tests DP thinking with constraints — very common in Mastercard onsite rounds.",
+  description:`<p>A message is encoded where <code>'A'→1, 'B'→2, ..., 'Z'→26</code>. Given a string <code>s</code> of digits, return the <strong>number of ways</strong> to decode it.</p>`,
+  examples:[
+    {input:'s = "12"',output:"2",explanation:"Decode as 'AB' (1,2) or 'L' (12)."},
+    {input:'s = "226"',output:"3",explanation:"'BZ' (2,26), 'VF' (22,6), 'BBF' (2,2,6)."},
+    {input:'s = "06"',output:"0",explanation:"'06' cannot map to 'F' since '06' has a leading zero."},
+  ],
+  constraints:["1 ≤ s.length ≤ 100","s contains only digits","s may contain leading zeros"],
+  approach:`<p><strong>1D DP with O(1) space</strong>: track <code>prev2</code> (2 steps back) and <code>prev1</code> (1 step back). For each character, add <code>prev1</code> if single digit is valid, add <code>prev2</code> if two-digit number is valid (10-26).</p>`,
+  steps:["If s[0]=='0', return 0.","prev2=1 (empty), prev1=1 (first char).","From index 1: curr=0.","  If s[i]!='0' → curr += prev1 (single digit decode).","  If s[i-1..i] in [10..26] → curr += prev2 (two digit decode).","  Slide: prev2=prev1, prev1=curr.","Return prev1."],
+  code:`public class DecodeWays {
+
+    public int numDecodings(String s) {
+        if (s.charAt(0) == '0') return 0;
+
+        int prev2 = 1;                  // dp[i-2]: ways to decode empty prefix
+        int prev1 = 1;                  // dp[i-1]: ways to decode first character
+
+        for (int i = 1; i < s.length(); i++) {
+            int curr = 0;
+
+            // Single digit: valid if not '0'
+            if (s.charAt(i) != '0') {
+                curr += prev1;
+            }
+
+            // Two digits: valid if in range [10, 26]
+            int twoDigit = Integer.parseInt(s.substring(i - 1, i + 1));
+            if (twoDigit >= 10 && twoDigit <= 26) {
+                curr += prev2;
+            }
+
+            prev2 = prev1;
+            prev1 = curr;
+        }
+        return prev1;
+    }
+}`
+},
+{
+  id:30, title:"Find All Anagrams in a String", difficulty:"Medium", acceptance:"50.3%",
+  tags:["Hash Table","String","Sliding Window","Mastercard"], freq:"High",
+  time:"O(n)", space:"O(1)",
+  mcNote:"Pattern matching inside a stream of data is core to Mastercard's fraud rule engine — detecting known patterns of fraudulent activity within a transaction stream. Tests sliding window mastery.",
+  description:`<p>Given two strings <code>s</code> and <code>p</code>, return an array of all the start indices of <code>p</code>'s anagrams in <code>s</code>. You may return the answer in any order.</p>`,
+  examples:[
+    {input:'s = "cbaebabacd", p = "abc"',output:"[0,6]",explanation:"s[0..2]='cba' and s[6..8]='bac' are anagrams of 'abc'."},
+    {input:'s = "abab", p = "ab"',output:"[0,1,2]"},
+  ],
+  constraints:["1 ≤ s.length, p.length ≤ 3×10⁴","s and p consist of lowercase English letters"],
+  approach:`<p>Fixed-size <strong>sliding window</strong> of length p. Maintain a frequency array of the current window. Compare with p's frequency at each position. Slide by adding the new right char and removing the leftmost char.</p>`,
+  steps:["Count freq array for p (size 26).","Count freq array for window of size p.length().","At each step: if arrays match, add start index.","Slide: add s[right], remove s[right-p.length()].","Compare using Arrays.equals() each step."],
+  code:`import java.util.*;
+
+public class FindAllAnagrams {
+
+    public List<Integer> findAnagrams(String s, String p) {
+        List<Integer> result = new ArrayList<>();
+        if (s.length() < p.length()) return result;
+
+        int[] pCount = new int[26];
+        int[] wCount = new int[26];
+
+        // Initialize frequency arrays
+        for (char c : p.toCharArray())              pCount[c - 'a']++;
+        for (int i = 0; i < p.length(); i++)        wCount[s.charAt(i) - 'a']++;
+
+        if (Arrays.equals(pCount, wCount)) result.add(0);
+
+        // Slide the window one character at a time
+        for (int i = p.length(); i < s.length(); i++) {
+            wCount[s.charAt(i) - 'a']++;                        // add new right
+            wCount[s.charAt(i - p.length()) - 'a']--;           // remove old left
+
+            if (Arrays.equals(pCount, wCount)) {
+                result.add(i - p.length() + 1);
+            }
+        }
+        return result;
+    }
+}`
+},
+{
+  id:31, title:"Implement Trie (Prefix Tree)", difficulty:"Medium", acceptance:"64.5%",
+  tags:["Hash Table","String","Design","Trie","Mastercard"], freq:"High",
+  time:"O(m) per op", space:"O(m×n)",
+  mcNote:"Mastercard's merchant name auto-complete, BIN (Bank Identification Number) prefix lookup, and fraud-rule keyword matching all rely on prefix-tree structures. Frequently asked as a design implementation.",
+  description:`<p>Implement a trie with <code>insert</code>, <code>search</code>, and <code>startsWith</code> methods.</p>
+<ul style="margin-left:18px;color:var(--text2);line-height:1.8;margin-top:6px">
+<li><code>insert(word)</code> — inserts word into the trie.</li>
+<li><code>search(word)</code> — returns true if word is in the trie.</li>
+<li><code>startsWith(prefix)</code> — returns true if any word starts with prefix.</li>
+</ul>`,
+  examples:[
+    {input:'["Trie","insert","search","search","startsWith","insert","search"]\n[[],["apple"],["apple"],["app"],["app"],["app"],["app"]]',output:"[null,null,true,false,true,null,true]"},
+  ],
+  constraints:["1 ≤ word.length, prefix.length ≤ 2000","All inputs consist of lowercase English letters","At most 3×10⁴ calls to insert, search, startsWith"],
+  approach:`<p>Each <strong>TrieNode</strong> holds an array of 26 children (one per letter) and an <code>isEnd</code> flag. Traverse character by character, creating nodes as needed for insert; stop early for search/startsWith if a node is missing.</p>`,
+  steps:["TrieNode: children[26] + boolean isEnd.","insert: for each char, create child if absent, advance, mark isEnd.","search: traverse all chars, return node.isEnd at end.","startsWith: traverse all chars, return node != null at end."],
+  code:`public class Trie {
+
+    private static class TrieNode {
+        TrieNode[] children = new TrieNode[26];
+        boolean    isEnd    = false;
+    }
+
+    private TrieNode root;
+
+    public Trie() {
+        root = new TrieNode();
+    }
+
+    public void insert(String word) {
+        TrieNode node = root;
+        for (char c : word.toCharArray()) {
+            int idx = c - 'a';
+            if (node.children[idx] == null) {
+                node.children[idx] = new TrieNode();
+            }
+            node = node.children[idx];
+        }
+        node.isEnd = true;
+    }
+
+    public boolean search(String word) {
+        TrieNode node = traverse(word);
+        return node != null && node.isEnd;  // must be complete word
+    }
+
+    public boolean startsWith(String prefix) {
+        return traverse(prefix) != null;    // only need the path to exist
+    }
+
+    private TrieNode traverse(String s) {
+        TrieNode node = root;
+        for (char c : s.toCharArray()) {
+            int idx = c - 'a';
+            if (node.children[idx] == null) return null;
+            node = node.children[idx];
+        }
+        return node;
+    }
+}`
+},
+{
+  id:32, title:"Sliding Window Maximum", difficulty:"Hard", acceptance:"46.5%",
+  tags:["Array","Queue","Sliding Window","Monotonic Deque","Mastercard"], freq:"High",
+  time:"O(n)", space:"O(k)",
+  mcNote:"Real-time fraud detection at Mastercard requires tracking the maximum transaction amount in a sliding time window. This exact problem models that requirement — expect it in senior/SWE2 rounds.",
+  description:`<p>You are given an array of integers <code>nums</code> and an integer <code>k</code>. There is a sliding window of size <code>k</code> moving from left to right. Return the maximum value in each window position.</p>`,
+  examples:[
+    {input:"nums = [1,3,-1,-3,5,3,6,7], k = 3",output:"[3,3,5,5,6,7]"},
+    {input:"nums = [1], k = 1",output:"[1]"},
+  ],
+  constraints:["1 ≤ nums.length ≤ 10⁵","-10⁴ ≤ nums[i] ≤ 10⁴","1 ≤ k ≤ nums.length"],
+  approach:`<p><strong>Monotonic Deque</strong>: maintain a deque of indices where values are in decreasing order. Before adding a new index, remove all indices from the back whose values are ≤ current (they can never be the maximum). Remove the front if it's outside the window.</p>`,
+  steps:["deque stores indices of candidates for maximum.","For each i: remove front if out of window (i-k).","Remove from back while nums[back] <= nums[i].","Add i to back.","Record nums[deque.front()] as window max when i >= k-1."],
+  code:`import java.util.ArrayDeque;
+import java.util.Deque;
+
+public class SlidingWindowMaximum {
+
+    public int[] maxSlidingWindow(int[] nums, int k) {
+        int[]  result = new int[nums.length - k + 1];
+        Deque<Integer> deque = new ArrayDeque<>();  // stores indices
+
+        for (int i = 0; i < nums.length; i++) {
+
+            // Remove indices that are outside the current window
+            while (!deque.isEmpty() && deque.peekFirst() < i - k + 1) {
+                deque.pollFirst();
+            }
+
+            // Remove indices whose values are smaller than current
+            // (they can never be the max while current is in the window)
+            while (!deque.isEmpty() && nums[deque.peekLast()] <= nums[i]) {
+                deque.pollLast();
+            }
+
+            deque.offerLast(i);
+
+            // Start recording results once first window is complete
+            if (i >= k - 1) {
+                result[i - k + 1] = nums[deque.peekFirst()];
+            }
+        }
+        return result;
+    }
+}`
+},
+{
+  id:33, title:"Jump Game II", difficulty:"Medium", acceptance:"40.9%",
+  tags:["Array","Greedy","Dynamic Programming","Mastercard"], freq:"High",
+  time:"O(n)", space:"O(1)",
+  mcNote:"Greedy thinking in optimization problems appears in Mastercard's payment routing — finding the minimum number of hops/intermediaries to route a transaction. Tests whether candidates think greedily vs. DP.",
+  description:`<p>You are given an array <code>nums</code> where <code>nums[i]</code> is the maximum jump length from index <code>i</code>. Return the <strong>minimum number of jumps</strong> to reach the last index. It is guaranteed you can always reach the last index.</p>`,
+  examples:[
+    {input:"nums = [2,3,1,1,4]",output:"2",explanation:"Jump 1 step from index 0 to 1, then 3 steps to reach the last index."},
+    {input:"nums = [2,3,0,1,4]",output:"2"},
+  ],
+  constraints:["1 ≤ nums.length ≤ 10⁴","0 ≤ nums[i] ≤ 1000"],
+  approach:`<p><strong>Greedy</strong>: track <code>curEnd</code> (end of current jump range) and <code>farthest</code> (max reachable so far). When we reach <code>curEnd</code>, we must make a jump — increment jumps and set <code>curEnd = farthest</code>.</p>`,
+  steps:["jumps=0, curEnd=0, farthest=0.","For i from 0 to n-2:","  farthest = max(farthest, i + nums[i]).","  If i == curEnd: jumps++, curEnd = farthest.","  If curEnd >= n-1: break.","Return jumps."],
+  code:`public class JumpGameII {
+
+    public int jump(int[] nums) {
+        int jumps   = 0;
+        int curEnd  = 0;  // end of the current jump range
+        int farthest = 0; // farthest index reachable so far
+
+        // No need to jump from the last index
+        for (int i = 0; i < nums.length - 1; i++) {
+            farthest = Math.max(farthest, i + nums[i]);
+
+            // We've used up all positions in the current jump range
+            if (i == curEnd) {
+                jumps++;
+                curEnd = farthest;
+                if (curEnd >= nums.length - 1) break;
+            }
+        }
+        return jumps;
+    }
+}`
+},
+{
+  id:34, title:"Unique Paths", difficulty:"Medium", acceptance:"63.7%",
+  tags:["Math","Dynamic Programming","Combinatorics","Mastercard"], freq:"High",
+  time:"O(m×n)", space:"O(n)",
+  mcNote:"Grid DP is a foundational problem in Mastercard SWE2 interviews — often used as a warm-up to assess DP fundamentals before harder problems. Know the math formula shortcut as well.",
+  description:`<p>There is a robot on an <code>m × n</code> grid. The robot can only move <strong>right or down</strong>. How many unique paths are there from the top-left to the bottom-right corner?</p>`,
+  examples:[
+    {input:"m = 3, n = 7",output:"28"},
+    {input:"m = 3, n = 2",output:"3",explanation:"Right→Down→Down, Down→Down→Right, Down→Right→Down."},
+  ],
+  constraints:["1 ≤ m, n ≤ 100"],
+  approach:`<p><strong>1D DP</strong>: <code>dp[j]</code> = paths to reach column j in the current row. For each row, update <code>dp[j] += dp[j-1]</code> (paths from left). This compresses the 2D table to O(n) space.</p>`,
+  steps:["dp[0..n-1] = 1 (only one way to reach any cell in the first row).","For each row r from 1 to m-1:","  For each col c from 1 to n-1:","    dp[c] += dp[c-1]  (from above + from left).","Return dp[n-1]."],
+  code:`public class UniquePaths {
+
+    public int uniquePaths(int m, int n) {
+        int[] dp = new int[n];
+        java.util.Arrays.fill(dp, 1);   // first row: 1 path to each cell
+
+        for (int row = 1; row < m; row++) {
+            for (int col = 1; col < n; col++) {
+                dp[col] += dp[col - 1]; // paths from above + paths from left
+            }
+        }
+        return dp[n - 1];
+    }
+
+    // Math shortcut: C(m+n-2, m-1) — for follow-up discussion
+    public int uniquePathsMath(int m, int n) {
+        long result = 1;
+        // C(m+n-2, m-1) = (m+n-2)! / ((m-1)! * (n-1)!)
+        for (int i = 0; i < m - 1; i++) {
+            result = result * (n + i) / (i + 1);
+        }
+        return (int) result;
+    }
+}`
+},
+{
+  id:35, title:"Binary Tree Maximum Path Sum", difficulty:"Hard", acceptance:"39.7%",
+  tags:["Tree","DFS","Dynamic Programming","Mastercard"], freq:"High",
+  time:"O(n)", space:"O(h)",
+  mcNote:"Tree traversal with post-order aggregation models Mastercard's hierarchical account structure (merchant → region → global). Asked in Mastercard senior onsite rounds to test recursive thinking under constraints.",
+  description:`<p>A <strong>path</strong> in a binary tree is a sequence of nodes where each pair of adjacent nodes has an edge connecting them. A node can only appear in the sequence <strong>at most once</strong>. The path does not need to pass through the root.</p>
+<p>Given the root of a binary tree, return the <strong>maximum path sum</strong>.</p>`,
+  examples:[
+    {input:"root = [1,2,3]",output:"6",explanation:"The optimal path is 2→1→3 with sum = 6."},
+    {input:"root = [-10,9,20,null,null,15,7]",output:"42",explanation:"The optimal path is 15→20→7 with sum = 42."},
+  ],
+  constraints:["The number of nodes in the tree is in range [1, 3×10⁴]","-1000 ≤ Node.val ≤ 1000"],
+  approach:`<p>Post-order DFS. At each node: compute the max one-sided path through left and right (clamp negatives to 0). Update global max with <code>node.val + leftGain + rightGain</code> (the arch through this node). Return <code>node.val + max(leftGain, rightGain)</code> to the parent (a path can only go one direction).</p>`,
+  steps:["maxSum = Integer.MIN_VALUE (global).","DFS returns: max one-sided gain from this node upward.","  leftGain  = max(0, dfs(left))   — ignore negative subtrees.","  rightGain = max(0, dfs(right)).","  Update maxSum = max(maxSum, node.val + leftGain + rightGain).","  Return node.val + max(leftGain, rightGain)."],
+  code:`public class BinaryTreeMaximumPathSum {
+
+    static class TreeNode {
+        int val; TreeNode left, right;
+        TreeNode(int val) { this.val = val; }
+    }
+
+    private int maxSum = Integer.MIN_VALUE;
+
+    public int maxPathSum(TreeNode root) {
+        dfs(root);
+        return maxSum;
+    }
+
+    // Returns max one-sided gain going UP from this node
+    private int dfs(TreeNode node) {
+        if (node == null) return 0;
+
+        // Clamp to 0: don't use a subtree if it's negative
+        int leftGain  = Math.max(0, dfs(node.left));
+        int rightGain = Math.max(0, dfs(node.right));
+
+        // Path through this node (arch): left → node → right
+        int pathSum = node.val + leftGain + rightGain;
+        maxSum = Math.max(maxSum, pathSum);
+
+        // Return only the better single branch to the parent
+        return node.val + Math.max(leftGain, rightGain);
+    }
+}`
+}
+];
+
+// ════════════════════════════════════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════════════════════════════════════
+let currentFilter   = 'All';
+let currentProblem  = null;
+let solvedSet       = new Set(JSON.parse(localStorage.getItem('solved')||'[]'));
+let isDark          = true;
+
+// ════════════════════════════════════════════════════════════════════════════
+// JAVA SYNTAX HIGHLIGHTER
+// ════════════════════════════════════════════════════════════════════════════
+function highlight(code) {
+  const keywords = ['public','private','protected','class','interface','extends',
+    'implements','new','return','if','else','while','for','break','continue',
+    'void','int','boolean','double','long','char','String','true','false','null',
+    'static','final','import','package','this','super','throw','throws','try',
+    'catch','finally','instanceof','switch','case','default','abstract','enum',
+    'Override','SuppressWarnings'];
+  const types = ['HashMap','HashSet','ArrayList','LinkedHashMap','PriorityQueue',
+    'List','Map','Set','Queue','Deque','Stack','Arrays','Collections','Math',
+    'Integer','Boolean','Character','Double','Long','Object','StringBuilder',
+    'ListNode','TreeNode'];
+
+  const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+  const lines = code.split('\n');
+  return lines.map(rawLine => {
+    const line = esc(rawLine);
+    // comments
+    if (/^\s*\/\//.test(line))
+      return `<span class="cmt">${line}</span>`;
+
+    let result = line
+      // string literals
+      .replace(/"([^"]*)"/g, (_,s) => `<span class="str">"${s}"</span>`)
+      // char literals
+      .replace(/'(\\?.)'(?!>)/g, (_,s) => `<span class="str">'${s}'</span>`)
+      // annotations
+      .replace(/(@\w+)/g, `<span class="ann">$1</span>`)
+      // numbers
+      .replace(/\b(\d[\d_]*\.?\d*[fFdDlL]?)\b/g, `<span class="num">$1</span>`);
+
+    // types
+    types.forEach(t => {
+      result = result.replace(
+        new RegExp(`\\b(${t})\\b`, 'g'),
+        `<span class="type">$1</span>`
+      );
+    });
+    // keywords
+    keywords.forEach(k => {
+      result = result.replace(
+        new RegExp(`\\b(${k})\\b`, 'g'),
+        `<span class="kw">$1</span>`
+      );
+    });
+    return result;
+  }).join('\n');
+}
+
+function buildCodeTable(code) {
+  const lines = code.split('\n');
+  const hl    = highlight(code).split('\n');
+  let rows    = '';
+  lines.forEach((_, i) => {
+    rows += `<tr>
+      <td class="ln-col">${i+1}</td>
+      <td class="code-col">${hl[i]}</td>
+    </tr>`;
+  });
+  return `<div class="code-wrap"><pre><table class="code-table">${rows}</table></pre></div>`;
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// RENDER SIDEBAR
+// ════════════════════════════════════════════════════════════════════════════
+function renderList() {
+  const q   = document.getElementById('searchInput').value.toLowerCase();
+  const list = document.getElementById('probList');
+  const filtered = PROBLEMS.filter(p => {
+    const matchDiff = currentFilter==='All' || p.difficulty===currentFilter || (currentFilter==='Mastercard' && p.tags.includes('Mastercard'));
+    const matchQ    = !q || p.title.toLowerCase().includes(q)
+                       || p.tags.some(t=>t.toLowerCase().includes(q));
+    return matchDiff && matchQ;
+  });
+
+  list.innerHTML = filtered.map(p => `
+    <div class="prob-row ${solvedSet.has(p.id)?'solved':''} ${currentProblem?.id===p.id?'active':''}"
+         onclick="openProblem(${p.id})">
+      <div class="prob-num">${p.id}</div>
+      <div class="prob-title-wrap">
+        <div class="prob-title-text">${p.title}</div>
+        <div class="prob-tags-row">${p.tags.slice(0,3).map(t=>`<span class="prob-tag">${t}</span>`).join('')}</div>
+      </div>
+      <div class="prob-meta">
+        ${p.tags.includes('Mastercard')?'<span class="mc-badge">⬤ MC</span>':''}
+        <span class="diff-badge ${p.difficulty}">${p.difficulty}</span>
+        <span class="acc-rate">${p.acceptance}</span>
+      </div>
+    </div>`).join('');
+
+  updateProgress();
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// RENDER CONTENT
+// ════════════════════════════════════════════════════════════════════════════
+function openProblem(id) {
+  currentProblem = PROBLEMS.find(p=>p.id===id);
+  renderList();
+
+  const p   = currentProblem;
+  const solved = solvedSet.has(p.id);
+
+  document.getElementById('contentArea').innerHTML = `
+    <div class="prob-header">
+      <div class="prob-header-top">
+        <h1>#${p.id}. ${p.title}</h1>
+        <span class="diff-pill ${p.difficulty}">${p.difficulty}</span>
+        ${solved?'<span class="solved-icon">✔ Solved</span>':''}
+      </div>
+      <div class="tag-list">
+        ${p.tags.map(t=>`<span class="tag-pill">${t}</span>`).join('')}
+        ${p.freq ? `<span class="mc-freq-badge ${p.freq==='Very High'?'very-high':'high'}">🎯 Mastercard: ${p.freq} Frequency</span>` : ''}
+      </div>
+      <div class="complexity-row">
+        <span class="cplx">Time: <b>${p.time}</b></span>
+        <span class="cplx">Space: <b>${p.space}</b></span>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab(this,'desc')">📋 Description</button>
+      <button class="tab-btn" onclick="switchTab(this,'approach')">💡 Approach</button>
+      <button class="tab-btn" onclick="switchTab(this,'solution')">☕ Solution</button>
+      <button class="tab-btn" onclick="switchTab(this,'schema')">🗂 Schema</button>
+    </div>
+
+    <div class="tab-panels">
+
+      <!-- DESCRIPTION -->
+      <div class="tab-panel active" id="tab-desc">
+        <div class="desc-text">${p.description}</div>
+        ${p.examples.map((ex,i)=>`
+          <div class="ex-block">
+            <div class="ex-label">Example ${i+1}</div>
+            <div><code><b>Input:</b>  ${ex.input}</code></div>
+            <div><code><b>Output:</b> ${ex.output}</code></div>
+            ${ex.explanation?`<div style="margin-top:4px;color:var(--text3);font-size:12px"><b>Explanation:</b> ${ex.explanation}</div>`:''}
+          </div>`).join('')}
+        <div class="constraint-list">
+          <div style="font-weight:700;color:var(--text2);margin-bottom:6px;font-size:13px">Constraints</div>
+          <ul>${p.constraints.map(c=>`<li>${c}</li>`).join('')}</ul>
+        </div>
+        <div style="margin-top:20px;display:flex;gap:10px">
+          <button class="nav-btn primary" onclick="markSolved(${p.id})">
+            ${solved?'✔ Solved':'Mark as Solved'}
+          </button>
+        </div>
+      </div>
+
+      <!-- APPROACH -->
+      <div class="tab-panel" id="tab-approach">
+        <div class="approach-card">
+          <h3><span class="icon">💡</span> Key Insight</h3>
+          <p>${p.approach}</p>
+        </div>
+        <div class="approach-card">
+          <h3><span class="icon">📝</span> Step-by-Step Algorithm</h3>
+          <ol class="step-list">${p.steps.map(s=>`<li>${s}</li>`).join('')}</ol>
+        </div>
+        ${p.mcNote ? `<div class="mc-section"><h4>⭐ Why Mastercard Asks This</h4><p style="font-size:13px;color:var(--text2)">${p.mcNote}</p></div>` : ''}
+        <div class="approach-card" style="border-color:var(--blue3)">
+          <h3><span class="icon">⏱</span> Complexity Analysis</h3>
+          <p><b style="color:var(--cyan)">Time:</b> ${p.time} &nbsp;&nbsp;
+             <b style="color:var(--cyan)">Space:</b> ${p.space}</p>
+        </div>
+      </div>
+
+      <!-- SOLUTION -->
+      <div class="tab-panel" id="tab-solution">
+        <div class="code-toolbar">
+          <span class="lang-badge">Java</span>
+          <span class="spacer"></span>
+          <button class="copy-btn" id="copyBtn" onclick="copyCode()">⎘ Copy</button>
+        </div>
+        ${buildCodeTable(p.code)}
+      </div>
+
+      <!-- SCHEMA -->
+      <div class="tab-panel" id="tab-schema">
+        ${SCHEMAS[p.id] || '<div style="color:var(--text3);padding:20px">No schema available.</div>'}
+      </div>
+    </div>`;
+}
+
+function switchTab(btn, name) {
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-'+name).classList.add('active');
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// ACTIONS
+// ════════════════════════════════════════════════════════════════════════════
+function markSolved(id) {
+  if (solvedSet.has(id)) solvedSet.delete(id);
+  else solvedSet.add(id);
+  localStorage.setItem('solved', JSON.stringify([...solvedSet]));
+  openProblem(id);
+  toast(solvedSet.has(id) ? '✔ Marked as solved!' : 'Unmarked.');
+}
+
+function copyCode() {
+  if (!currentProblem) return;
+  navigator.clipboard.writeText(currentProblem.code).then(() => {
+    const btn = document.getElementById('copyBtn');
+    if (btn) { btn.textContent='✔ Copied!'; btn.classList.add('copied'); }
+    setTimeout(() => {
+      if (btn) { btn.textContent='⎘ Copy'; btn.classList.remove('copied'); }
+    }, 2000);
+  });
+}
+
+function setFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderList();
+}
+
+function filterProblems() { renderList(); }
+
+function updateProgress() {
+  const total  = PROBLEMS.length;
+  const solved = solvedSet.size;
+  const easy   = PROBLEMS.filter(p=>p.difficulty==='Easy'  && solvedSet.has(p.id)).length;
+  const med    = PROBLEMS.filter(p=>p.difficulty==='Medium'&& solvedSet.has(p.id)).length;
+  const hard   = PROBLEMS.filter(p=>p.difficulty==='Hard'  && solvedSet.has(p.id)).length;
+
+  document.getElementById('solvedCount').textContent = solved;
+  document.getElementById('easyCount').textContent   = easy;
+  document.getElementById('medCount').textContent    = med;
+  document.getElementById('hardCount').textContent   = hard;
+  document.getElementById('progressLabel').textContent = `${solved} / ${total}`;
+  document.getElementById('progressFill').style.width = `${(solved/total)*100}%`;
+}
+
+function toggleTheme() {
+  isDark = !isDark;
+  document.documentElement.classList.toggle('light', !isDark);
+  document.querySelector('.nav-btn.ghost').textContent = isDark ? '🌙 Theme' : '☀️ Theme';
+}
+
+let toastTimer;
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════════════════════════════
+renderList();
+</script>
+</body>
+</html>
