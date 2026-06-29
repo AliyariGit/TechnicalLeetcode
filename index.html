@@ -2715,10 +2715,10 @@ function highlight(code) {
         `<span class="type">$1</span>`
       );
     });
-    // keywords
+    // keywords — (?!=) prevents matching "class" inside class="..." HTML attributes
     keywords.forEach(k => {
       result = result.replace(
-        new RegExp(`\\b(${k})\\b`, 'g'),
+        new RegExp(`\\b(${k})\\b(?!=)`, 'g'),
         `<span class="kw">$1</span>`
       );
     });
