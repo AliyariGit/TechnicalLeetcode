@@ -198,9 +198,9 @@ html,body{height:100%;font-family:'Segoe UI',system-ui,sans-serif;font-size:14px
 /* code block */
 .code-wrap{background:var(--code-bg);border:1px solid var(--border);
            border-radius:10px;overflow:hidden;font-size:13px}
-.code-wrap pre{overflow-x:auto;padding:0}
-.code-wrap pre::-webkit-scrollbar{height:5px}
-.code-wrap pre::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+.code-pre{overflow-x:auto;padding:0}
+.code-pre::-webkit-scrollbar{height:5px}
+.code-pre::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
 table.code-table{border-collapse:collapse;width:100%;font-family:'Consolas',monospace;
                   font-size:13px;line-height:1.6}
 table.code-table td{padding:0;vertical-align:top}
@@ -2736,7 +2736,7 @@ function buildCodeTable(code) {
       <td class="code-col">${hl[i]}</td>
     </tr>`;
   });
-  return `<div class="code-wrap"><pre><table class="code-table">${rows}</table></pre></div>`;
+  return `<div class="code-wrap"><div class="code-pre"><table class="code-table">${rows}</table></div></div>`;
 }
 
 // ════════════════════════════════════════════════════════════════════════════
